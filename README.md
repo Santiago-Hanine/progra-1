@@ -13,4 +13,4 @@
 
 	2. ``` git commit -m 'nombre de commit' ```
 
-	3. ``` git push ```
+	3. ``` git push --set-upstream origin (nombre de branch) ```
