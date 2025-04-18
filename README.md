@@ -1,7 +1,7 @@
 # Trabajo Integrador Progra 1
 
 1. Clonar proyecto:
-```git clone git@github.com:Santiago-Hanine/progra-1.git ```
+```git clone https://github.com/Santiago-Hanine/progra-1.git ```
 
 
 2. Trabajar siempre y mandar los cambios a STAGING
