@@ -104,6 +104,26 @@ def agregar_artistas(nombre, fechas,disponibilidad_campo, precio_campo, disponib
     print("Precio Platea Baja: ", nuevo_artista[4][0])
     print("Disponibilidad Platea Baja: ", nuevo_artista[4][1])
 
+def modificar_disponibilidad():
+    """"Modifica la disponibilidad de un sector"""""
+    print("Modificar disponibilidad")
+    print("---------------------------")
+    artista = int(seleccionar_artistas(eventos))
+    if artista == -1:
+        return
+    sector =int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
+    nueva_disponibilidad = int(input("Ingrese la nueva disponibilidad: "))
+    print(sector, artista, nueva_disponibilidad)
+    if sector == 1:
+        eventos[artista - 1][2][1] = nueva_disponibilidad
+        print("Disponibilidad Campo actualizado a: ", nueva_disponibilidad)
+    elif sector == 2:
+        eventos[artista - 1][3][1] = nueva_disponibilidad
+        print("Disponibilidad Platea Alta actualizado a: ", nueva_disponibilidad)
+    elif sector == 3:
+        eventos[artista - 1][4][1] = nueva_disponibilidad
+        print("Disponibilidad Platea Baja actualizado a: ", nueva_disponibilidad)
+
 
 eventos = [
     # Artista, Fechas donde toca     , Precio y disponibilidad de entradas (Campo, platea alta, platea baja )
@@ -197,7 +217,7 @@ def main():
                         modificar_precio()
                     elif opcion_administrador == 2:
                         print("Modificar disponibilidad")
-                        # Lógica para modificar disponibilidad
+                        modificar_disponibilidad()
                     elif opcion_administrador == 3:
                         nombre = input("Ingrese el nombre del artista: ")
                         fechas = input("Ingrese las fechas del artista (separadas por comas): ").split(",")
