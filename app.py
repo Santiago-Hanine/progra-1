@@ -144,7 +144,8 @@ def main():
         print("MENÚ DEL SISTEMA           ")
         print("---------------------------")
         print("[1] Ver artistas")
-        print("[2] Ingresar Administrador")
+        print('[2] Filtar artistas por precio')
+        print("[9] Ingresar Administrador")
         print("---------------------------")
         print("[0] Salir del programa")
         print()
@@ -153,8 +154,6 @@ def main():
         if opcion in [str(i) for i in range(0, opciones)]: # Sólo continua si se elije una opcion de menú válida
             if opcion == "1":
                 artista = int(seleccionar_artistas(eventos))
-                if artista == -1:
-                    break
                 print("Artista elegido: ", eventos[artista - 1][0])
                 print("---------------------------")
                 print("Que desea hacer?")
@@ -194,8 +193,32 @@ def main():
                         print("Fecha no valida")
                         opcion_fecha = input("Ingrese la fecha: ")
                     ver_entradas_disponibles(opcion_fecha)
-                
-            elif opcion == "2":   # Opción 2
+
+            elif opcion == "2":  # Opción 2
+                print("Filtrar artistas por precio")
+                print("---------------------------")
+                opcion_de_filtro = input("Desea filtrar por mayor o menor precio? mayor/menor ")
+                if opcion_de_filtro == "mayor":
+                    precio = int(input("Ingrese el precio: "))
+                    print("Artistas con precios mayores a ", precio)
+                    tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
+                    artistas_filtrados = list(filter(lambda x: x[tipo_de_sector + 1][0] > precio, eventos))
+                    for artista in artistas_filtrados:
+                        print("Artista: ", artista[0])
+                        print("Precio: ", artista[tipo_de_sector + 1][0])
+                elif opcion_de_filtro == "menor":
+                    precio = int(input("Ingrese el precio: "))
+                    print("Artistas con precios menores a ", precio)
+                    tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
+                    artistas_filtrados = list(filter(lambda x: x[tipo_de_sector + 1][0] < precio, eventos))
+                    for artista in artistas_filtrados:
+                        print("Artista: ", artista[0])
+                        print("Precio: ", artista[tipo_de_sector + 1][0])
+
+
+
+            
+            elif opcion == "9":   # Opción 9
                 print()
                 print("Ingreso de administrador")
                 print("---------------------------")
