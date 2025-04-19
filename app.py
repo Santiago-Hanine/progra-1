@@ -49,9 +49,9 @@ def seleccionar_sector(artista):
     """"Mestra las opciones del menu sector y le pide al usuario que ingrese su opcion"""""
     print ("Seleccione el sector:")
     print("Sectores: ")
-    print("1. Campo:")
-    print("2. Platea Alta:")
-    print("3. Platea Baja:")
+    print("1. Campo")
+    print("2. Platea Alta")
+    print("3. Platea Baja")
     opcion_sector = int(input("Ingrese el sector: "))
     disponibilidad = comporobar_disponibilidad(artista, opcion_sector)
     if (disponibilidad):
@@ -79,13 +79,13 @@ def modificar_precio():
     sector = seleccionar_sector(artista)
     nuevo_precio = int(input("Ingrese el nuevo precio: "))
     if sector == 2:
-        eventos[artista - 1][2][1] = nuevo_precio
+        eventos[artista - 1][2][0] = nuevo_precio
         print("Precio Campo actualizado a: ", nuevo_precio)
     elif sector == 3:
-        eventos[artista - 1][3][1] = nuevo_precio
+        eventos[artista - 1][3][0] = nuevo_precio
         print("Precio Platea Alta actualizado a: ", nuevo_precio)
     elif sector == 4:
-        eventos[artista - 1][4][1] = nuevo_precio
+        eventos[artista - 1][4][0] = nuevo_precio
         print("Precio Platea Baja actualizado a: ", nuevo_precio)
 
 def agregar_artistas(nombre, fechas,disponibilidad_campo, precio_campo, disponibilidad_platea_alta ,precio_platea_alta, disponibilidad_platea_baja, precio_platea_baja):
@@ -146,12 +146,16 @@ def main():
                 
                 if(opcion_elegida == 1):
                     sector = seleccionar_sector(artista)
-                    if sector == 2:
-                        print("Campo elegido: ", )
-                    elif sector == 3:
-                        print("Platea Alta elegida: ", )
-                    elif sector == 4:
-                        print("Platea Baja elegida: ", )
+                    print("Sector elegido con exito.", )
+                    cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+                    while cantidad_de_entradas > eventos[artista - 1][2][1]:
+                        print("No hay disponibilidad suficiente.")
+                        cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+                    print("Cantidad de entradas elegida: ", cantidad_de_entradas)
+                    print()
+                    print("Total a pagar: ", cantidad_de_entradas * eventos[artista - 1][sector][0])
+                    print("Entradas compradas con exito.")
+                    print("Gracias por su compra!")
                 elif(opcion_elegida == 2):
                     fechas = ver_fechas_del_artista(artista)
                     print('Fechas disponibles: ')
