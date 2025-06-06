@@ -1,23 +1,65 @@
 {
     "1": {
-        "Artista": "Tini",
-        "Fecha": "22/04/25",
-        "Sector": "Campo",
-        "Precio": 2000,
-        "Disponibilidad": 3000
+        "Artista": "Taylor Swift",
+        "Fechas": ["01/07/24", "02/07/24", "03/07/24"],
+        "Sectores": {
+            "Campo": {
+                "Nombre": "Campo",
+                "Precio": 85000,
+                "Disponibilidad": 1000
+            },
+            "Platea Alta": {
+                "Nombre": "Platea Alta",
+                "Precio": 65000,
+                "Disponibilidad": 500
+            },
+            "Platea Baja": {
+                "Nombre": "Platea Baja",
+                "Precio": 75000,
+                "Disponibilidad": 750
+            }
+        }
     },
     "2": {
-        "Artista": "Duki",
-        "Fecha": "25/04/25",
-        "Sector": "Platea Alta",
-        "Precio": 1300,
-        "Disponibilidad": 400
+        "Artista": "Coldplay",
+        "Fechas": ["15/08/24", "16/08/24"],
+        "Sectores": {
+            "Campo": {
+                "Nombre": "Campo",
+                "Precio": 75000,
+                "Disponibilidad": 1200
+            },
+            "Platea Alta": {
+                "Nombre": "Platea Alta",
+                "Precio": 55000,
+                "Disponibilidad": 600
+            },
+            "Platea Baja": {
+                "Nombre": "Platea Baja",
+                "Precio": 65000,
+                "Disponibilidad": 800
+            }
+        }
     },
     "3": {
         "Artista": "Airbag",
-        "Fecha": "28/04/25",
-        "Sector": "Platea Baja",
-        "Precio": 2000,
-        "Disponibilidad": 200
+        "Fechas": ["28/04/25"],
+        "Sectores": {
+            "Campo": {
+                "Nombre": "Campo",
+                "Precio": 2000,
+                "Disponibilidad": 200
+            },
+            "Platea Alta": {
+                "Nombre": "Platea Alta",
+                "Precio": 4000,
+                "Disponibilidad": 450
+            },
+            "Platea Baja": {
+                "Nombre": "Platea Baja",
+                "Precio": 1500,
+                "Disponibilidad": 200
+            }
+        }
     }
 }

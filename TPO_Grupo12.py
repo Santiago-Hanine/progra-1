@@ -6,35 +6,20 @@ def cargar_eventos():
         with open('Eventos.json', 'r', encoding='utf-8') as archivo:
             data = json.load(archivo)
             eventos = []
-            # Procesar los datos y convertirlos al formato de la matriz
-            artistas = {}
+            
             for id, evento in data.items():
                 artista = evento['Artista']
-                if artista not in artistas:
-                    artistas[artista] = {
-                        'fechas': [],
-                        'campo': [0, 0],  # [precio, disponibilidad]
-                        'platea_alta': [0, 0],
-                        'platea_baja': [0, 0]
-                    }
+                fechas = evento['Fechas']
+                campo = [evento['Sectores']['Campo']['Precio'], evento['Sectores']['Campo']['Disponibilidad']]
+                platea_alta = [evento['Sectores']['Platea Alta']['Precio'], evento['Sectores']['Platea Alta']['Disponibilidad']]
+                platea_baja = [evento['Sectores']['Platea Baja']['Precio'], evento['Sectores']['Platea Baja']['Disponibilidad']]
                 
-                artistas[artista]['fechas'].append(evento['Fecha'])
-                
-                if evento['Sector'] == 'Campo':
-                    artistas[artista]['campo'] = [evento['Precio'], evento['Disponibilidad']]
-                elif evento['Sector'] == 'Platea Alta':
-                    artistas[artista]['platea_alta'] = [evento['Precio'], evento['Disponibilidad']]
-                elif evento['Sector'] == 'Platea Baja':
-                    artistas[artista]['platea_baja'] = [evento['Precio'], evento['Disponibilidad']]
-            
-            # Convertir al formato de matriz
-            for artista, datos in artistas.items():
                 eventos.append([
                     artista,
-                    datos['fechas'],
-                    datos['campo'],
-                    datos['platea_alta'],
-                    datos['platea_baja']
+                    fechas,
+                    campo,
+                    platea_alta,
+                    platea_baja
                 ])
             
             return eventos
@@ -48,44 +33,35 @@ def cargar_eventos():
 def guardar_eventos(eventos):
     """Guarda los eventos en el archivo JSON"""
     data = {}
-    id_evento = 1
     
-    for evento in eventos:
+    for i, evento in enumerate(eventos, 1):
         artista = evento[0]
         fechas = evento[1]
         campo = evento[2]
         platea_alta = evento[3]
         platea_baja = evento[4]
         
-        # Guardar información del Campo
-        data[str(id_evento)] = {
+        data[str(i)] = {
             "Artista": artista,
-            "Fecha": fechas[0],  # Tomamos la primera fecha
-            "Sector": "Campo",
-            "Precio": campo[0],
-            "Disponibilidad": campo[1]
+            "Fechas": fechas,
+            "Sectores": {
+                "Campo": {
+                    "Nombre": "Campo",
+                    "Precio": campo[0],
+                    "Disponibilidad": campo[1]
+                },
+                "Platea Alta": {
+                    "Nombre": "Platea Alta",
+                    "Precio": platea_alta[0],
+                    "Disponibilidad": platea_alta[1]
+                },
+                "Platea Baja": {
+                    "Nombre": "Platea Baja",
+                    "Precio": platea_baja[0],
+                    "Disponibilidad": platea_baja[1]
+                }
+            }
         }
-        id_evento += 1
-        
-        # Guardar información de Platea Alta
-        data[str(id_evento)] = {
-            "Artista": artista,
-            "Fecha": fechas[0],
-            "Sector": "Platea Alta",
-            "Precio": platea_alta[0],
-            "Disponibilidad": platea_alta[1]
-        }
-        id_evento += 1
-        
-        # Guardar información de Platea Baja
-        data[str(id_evento)] = {
-            "Artista": artista,
-            "Fecha": fechas[0],
-            "Sector": "Platea Baja",
-            "Precio": platea_baja[0],
-            "Disponibilidad": platea_baja[1]
-        }
-        id_evento += 1
     
     try:
         with open('Eventos.json', 'w', encoding='utf-8') as archivo:
@@ -416,17 +392,6 @@ def main():
                                 print("-" * 40)
                 else:
                     print("Usuario o contraseña incorrectos.")
-
-
-# Matriz de eventos
-"""eventos = [
-     Artista, Fechas donde toca     , Precio y disponibilidad de entradas (Campo, platea alta, platea baja )
-    ['Tini', ['22/04/25', '23/04/25'], [2000, 1000], [3000, 200], [3500, 100]],
-    ['Duki', ['25/04/25', '26/04/25'], [1300, 400], [2500, 400], [1500, 800]],
-    ['Airbag', ['28/04/25', '2
-    9/04/25'], [2000, 200], [4000, 450], [1500, 200]]
-]
-"""
 
 # Punto de entrada al programa
 main()
