@@ -1,0 +1,23 @@
+{
+    "1": {
+        "Artista": "Tini",
+        "Fecha": "22/04/25",
+        "Sector": "Campo",
+        "Precio": 2000,
+        "Disponibilidad": 3000
+    },
+    "2": {
+        "Artista": "Duki",
+        "Fecha": "25/04/25",
+        "Sector": "Platea Alta",
+        "Precio": 1300,
+        "Disponibilidad": 400
+    },
+    "3": {
+        "Artista": "Airbag",
+        "Fecha": "28/04/25",
+        "Sector": "Platea Baja",
+        "Precio": 2000,
+        "Disponibilidad": 200
+    }
+}

@@ -1,0 +1,160 @@
+{
+    "es": {
+        "menu_title": "---------------------------\nMENÚ DEL SISTEMA\n---------------------------",
+        "menu_options": {
+            "view_artists": "[1] Ver artistas",
+            "filter_artists": "[2] Filtar artistas por precio",
+            "admin_login": "[9] Ingresar Administrador",
+            "exit": "[0] Salir del programa"
+        },
+        "select_option": "Seleccione una opción: ",
+        "invalid_option": "Opción no válida. Por favor, seleccione una opción del menú.",
+        "goodbye": "Gracias por usar el sistema de venta de entradas.\nHasta luego!",
+        "select_artist": "Seleccione su artista",
+        "enter_event_number": "Ingrese el numero del evento: ",
+        "artist_selected": "Artista elegido: ",
+        "what_to_do": "---------------------------\nQue desea hacer?\n---------------------------",
+        "purchase_options": {
+            "proceed": "[1] Proceder con la compra",
+            "view_dates": "[2] Ver fechas disponibles",
+            "view_tickets": "[3] Ver entradas disponibles"
+        },
+        "sectors": {
+            "field": "Campo",
+            "high_stands": "Platea Alta",
+            "low_stands": "Platea Baja"
+        },
+        "select_sector": "Seleccione el sector:",
+        "sectors_menu": "Sectores: \n1. Campo\n2. Platea Alta\n3. Platea Baja",
+        "enter_sector": "Ingrese el sector: ",
+        "sector_available": "El sector tiene disponibilidad",
+        "availability": "Disponibilidad: ",
+        "tickets_available": " entradas disponibles",
+        "sector_unavailable": "El sector no tiene disponibilidad",
+        "enter_tickets": "Ingrese la cantidad de entradas: ",
+        "insufficient_availability": "No hay disponibilidad suficiente.",
+        "invalid_tickets": "La cantidad de entradas no puede ser negativa ni cero.",
+        "tickets_selected": "Cantidad de entradas elegida: ",
+        "total_to_pay": "Total a pagar: ",
+        "purchase_success": "Entradas compradas con exito.\nGracias por su compra!",
+        "available_dates": "Fechas disponibles: ",
+        "enter_date": "Ingrese la fecha: ",
+        "invalid_date": "Fecha no valida",
+        "tickets_available_date": "Entradas disponibles para la fecha: ",
+        "filter_price": {
+            "title": "Filtrar artistas por precio",
+            "higher_lower": "Desea filtrar por mayor o menor precio? mayor/menor: ",
+            "invalid_filter": "Opción no válida. Por favor, seleccione mayor o menor.",
+            "enter_price": "Ingrese el precio: ",
+            "invalid_price": "El precio no puede ser negativo ni cero.",
+            "enter_sector_type": "Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): ",
+            "higher_than": "Artistas con precios mayores a ",
+            "no_results": "No hay artistas con precios menores a "
+        },
+        "admin": {
+            "title": "Ingreso de administrador",
+            "enter_user": "Ingrese su usuario: ",
+            "enter_password": "Ingrese su contraseña: ",
+            "welcome": "Bienvenido Administrador",
+            "menu": {
+                "modify_prices": "1. Modificar precios",
+                "modify_availability": "2. Modificar disponibilidad",
+                "add_artists": "3. Agregar artistas",
+                "exit": "0. Salir"
+            },
+            "new_price": "Ingrese el nuevo precio: ",
+            "invalid_price": "El precio no puede ser negativo ni cero.",
+            "price_updated": "Precio actualizado a: ",
+            "new_availability": "Ingrese la nueva disponibilidad: ",
+            "invalid_availability": "La disponibilidad no puede ser negativa.",
+            "availability_updated": "Disponibilidad actualizada a: ",
+            "new_artist": {
+                "name": "Ingrese el nombre del artista: ",
+                "invalid_name": "El nombre no puede estar vacío.",
+                "dates": "Ingrese las fechas del artista (separadas por comas) dd/mm/yy: ",
+                "invalid_dates": "Las fechas no pueden estar vacías."
+            },
+            "artist_added": "Artista agregado con exito.",
+            "list_updated": "Listado actualizado con exito."
+        }
+    },
+    "en": {
+        "menu_title": "---------------------------\nSYSTEM MENU\n---------------------------",
+        "menu_options": {
+            "view_artists": "[1] View artists",
+            "filter_artists": "[2] Filter artists by price",
+            "admin_login": "[9] Admin Login",
+            "exit": "[0] Exit program"
+        },
+        "select_option": "Select an option: ",
+        "invalid_option": "Invalid option. Please select an option from the menu.",
+        "goodbye": "Thank you for using the ticket sales system.\nGoodbye!",
+        "select_artist": "Select your artist",
+        "enter_event_number": "Enter the event number: ",
+        "artist_selected": "Selected artist: ",
+        "what_to_do": "---------------------------\nWhat would you like to do?\n---------------------------",
+        "purchase_options": {
+            "proceed": "[1] Proceed with purchase",
+            "view_dates": "[2] View available dates",
+            "view_tickets": "[3] View available tickets"
+        },
+        "sectors": {
+            "field": "Field",
+            "high_stands": "High Stands",
+            "low_stands": "Low Stands"
+        },
+        "select_sector": "Select the sector:",
+        "sectors_menu": "Sectors: \n1. Field\n2. High Stands\n3. Low Stands",
+        "enter_sector": "Enter sector: ",
+        "sector_available": "The sector is available",
+        "availability": "Availability: ",
+        "tickets_available": " tickets available",
+        "sector_unavailable": "The sector is not available",
+        "enter_tickets": "Enter the number of tickets: ",
+        "insufficient_availability": "Insufficient availability.",
+        "invalid_tickets": "The number of tickets cannot be negative or zero.",
+        "tickets_selected": "Number of tickets selected: ",
+        "total_to_pay": "Total to pay: ",
+        "purchase_success": "Tickets purchased successfully.\nThank you for your purchase!",
+        "available_dates": "Available dates: ",
+        "enter_date": "Enter date: ",
+        "invalid_date": "Invalid date",
+        "tickets_available_date": "Tickets available for date: ",
+        "filter_price": {
+            "title": "Filter artists by price",
+            "higher_lower": "Do you want to filter by higher or lower price? higher/lower: ",
+            "invalid_filter": "Invalid option. Please select higher or lower.",
+            "enter_price": "Enter price: ",
+            "invalid_price": "Price cannot be negative or zero.",
+            "enter_sector_type": "Enter sector type: field(1), high stands(2), low stands(3): ",
+            "higher_than": "Artists with prices higher than ",
+            "no_results": "No artists with prices lower than "
+        },
+        "admin": {
+            "title": "Admin Login",
+            "enter_user": "Enter username: ",
+            "enter_password": "Enter password: ",
+            "welcome": "Welcome Administrator",
+            "menu": {
+                "modify_prices": "1. Modify prices",
+                "modify_availability": "2. Modify availability",
+                "add_artists": "3. Add artists",
+                "exit": "0. Exit"
+            },
+            "new_price": "Enter new price: ",
+            "invalid_price": "Price cannot be negative or zero.",
+            "price_updated": "Price updated to: ",
+            "new_availability": "Enter new availability: ",
+            "invalid_availability": "Availability cannot be negative.",
+            "availability_updated": "Availability updated to: ",
+            "new_artist": {
+                "name": "Enter artist name: ",
+                "invalid_name": "Name cannot be empty.",
+                "dates": "Enter artist dates (comma separated) dd/mm/yy: ",
+                "invalid_dates": "Dates cannot be empty."
+            },
+            "artist_added": "Artist added successfully.",
+            "list_updated": "List updated successfully."
+        }
+    }
+} 

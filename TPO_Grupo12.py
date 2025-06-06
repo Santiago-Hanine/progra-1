@@ -1,3 +1,101 @@
+import json
+
+def cargar_eventos():
+    """Carga los eventos desde el archivo JSON"""
+    try:
+        with open('Eventos.json', 'r', encoding='utf-8') as archivo:
+            data = json.load(archivo)
+            eventos = []
+            # Procesar los datos y convertirlos al formato de la matriz
+            artistas = {}
+            for id, evento in data.items():
+                artista = evento['Artista']
+                if artista not in artistas:
+                    artistas[artista] = {
+                        'fechas': [],
+                        'campo': [0, 0],  # [precio, disponibilidad]
+                        'platea_alta': [0, 0],
+                        'platea_baja': [0, 0]
+                    }
+                
+                artistas[artista]['fechas'].append(evento['Fecha'])
+                
+                if evento['Sector'] == 'Campo':
+                    artistas[artista]['campo'] = [evento['Precio'], evento['Disponibilidad']]
+                elif evento['Sector'] == 'Platea Alta':
+                    artistas[artista]['platea_alta'] = [evento['Precio'], evento['Disponibilidad']]
+                elif evento['Sector'] == 'Platea Baja':
+                    artistas[artista]['platea_baja'] = [evento['Precio'], evento['Disponibilidad']]
+            
+            # Convertir al formato de matriz
+            for artista, datos in artistas.items():
+                eventos.append([
+                    artista,
+                    datos['fechas'],
+                    datos['campo'],
+                    datos['platea_alta'],
+                    datos['platea_baja']
+                ])
+            
+            return eventos
+    except FileNotFoundError:
+        print("Archivo Eventos.json no encontrado. Creando lista de eventos vacía.")
+        return []
+    except json.JSONDecodeError:
+        print("Error al leer el archivo JSON. Verificar formato.")
+        return []
+
+def guardar_eventos(eventos):
+    """Guarda los eventos en el archivo JSON"""
+    data = {}
+    id_evento = 1
+    
+    for evento in eventos:
+        artista = evento[0]
+        fechas = evento[1]
+        campo = evento[2]
+        platea_alta = evento[3]
+        platea_baja = evento[4]
+        
+        # Guardar información del Campo
+        data[str(id_evento)] = {
+            "Artista": artista,
+            "Fecha": fechas[0],  # Tomamos la primera fecha
+            "Sector": "Campo",
+            "Precio": campo[0],
+            "Disponibilidad": campo[1]
+        }
+        id_evento += 1
+        
+        # Guardar información de Platea Alta
+        data[str(id_evento)] = {
+            "Artista": artista,
+            "Fecha": fechas[0],
+            "Sector": "Platea Alta",
+            "Precio": platea_alta[0],
+            "Disponibilidad": platea_alta[1]
+        }
+        id_evento += 1
+        
+        # Guardar información de Platea Baja
+        data[str(id_evento)] = {
+            "Artista": artista,
+            "Fecha": fechas[0],
+            "Sector": "Platea Baja",
+            "Precio": platea_baja[0],
+            "Disponibilidad": platea_baja[1]
+        }
+        id_evento += 1
+    
+    try:
+        with open('Eventos.json', 'w', encoding='utf-8') as archivo:
+            json.dump(data, archivo, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error al guardar el archivo JSON: {e}")
+
+# Cargar eventos al inicio del programa
+eventos = cargar_eventos()
+
 def comporobar_disponibilidad(artista, opcion_sector):
     """"Comprueba si un sector tiene cupos para la cantidad requerida"""""
     if opcion_sector == 1:
@@ -96,11 +194,13 @@ def modificar_precio():
     elif sector == 4:
         eventos[artista - 1][4][0] = nuevo_precio
         print("Precio Platea Baja actualizado a: ", nuevo_precio)
+    guardar_eventos(eventos)  # Guardar cambios en el JSON
 
 def agregar_artistas(nombre, fechas,disponibilidad_campo, precio_campo, disponibilidad_platea_alta ,precio_platea_alta, disponibilidad_platea_baja, precio_platea_baja):
     """"Agrega un artista al sistema"""""
-    nuevo_artista = [nombre, fechas,[disponibilidad_campo ,precio_campo], [disponibilidad_platea_alta ,precio_platea_alta], [disponibilidad_platea_baja,precio_platea_baja]]
+    nuevo_artista = [nombre, fechas,[precio_campo, disponibilidad_campo], [precio_platea_alta, disponibilidad_platea_alta], [precio_platea_baja, disponibilidad_platea_baja]]
     eventos.append(nuevo_artista)
+    guardar_eventos(eventos)  # Guardar cambios en el JSON
     print("Artista agregado con exito. ")
 
 def modificar_disponibilidad():
@@ -124,6 +224,7 @@ def modificar_disponibilidad():
     elif sector == 3:
         eventos[artista - 1][4][1] = nueva_disponibilidad
         print("Disponibilidad Platea Baja actualizado a: ", nueva_disponibilidad)
+    guardar_eventos(eventos)  # Guardar cambios en el JSON
 
 
 #PROGRAMA PRINCIPAL
@@ -318,13 +419,14 @@ def main():
 
 
 # Matriz de eventos
-eventos = [
-    # Artista, Fechas donde toca     , Precio y disponibilidad de entradas (Campo, platea alta, platea baja )
+"""eventos = [
+     Artista, Fechas donde toca     , Precio y disponibilidad de entradas (Campo, platea alta, platea baja )
     ['Tini', ['22/04/25', '23/04/25'], [2000, 1000], [3000, 200], [3500, 100]],
     ['Duki', ['25/04/25', '26/04/25'], [1300, 400], [2500, 400], [1500, 800]],
-    ['Airbag', ['28/04/25', '29/04/25'], [2000, 200], [4000, 450], [1500, 200]]
+    ['Airbag', ['28/04/25', '2
+    9/04/25'], [2000, 200], [4000, 450], [1500, 200]]
 ]
-
+"""
 
 # Punto de entrada al programa
 main()
