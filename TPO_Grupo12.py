@@ -201,20 +201,6 @@ def ver_entradas_disponibles(opcion_fecha):
             print("---------------------------")
 	
 
-#PROGRAMA PRINCIPAL
-def mostrar_menu_principal():
-	"""Muestra el menú principal del sistema."""
-	print()
-	print("---------------------------")
-	print("MENÚ DEL SISTEMA           ")
-	print("---------------------------")
-	print("[1] Ver artistas")
-	print("[2] Filtrar artistas por precio")
-	print("[9] Ingresar Administrador")
-	print("---------------------------")
-	print("[0] Salir del programa")
-	print()
-
 def validar_opcion_menu(opciones_validas):
 	"""Valida que la opción ingresada sea válida."""
 	opcion = input("Seleccione una opción: ")
@@ -420,12 +406,24 @@ def agregar_nuevo_artista():
 	
 	agregar_artistas(nombre, fechas, disponibilidad_campo, precio_campo, disponibilidad_platea_alta, precio_platea_alta, disponibilidad_platea_baja, precio_platea_baja)
 	print("Artista agregado con éxito.")
+ #PROGRAMA PRINCIPAL
 
 def main():
 	"""Punto de entrada principal del programa."""
+	print()
+	print("---------------------------")
+	print("MENÚ DEL SISTEMA           ")
+	print("---------------------------")
+	print("[1] Ver artistas")
+	print("[2] Filtrar artistas por precio")
+	print("[9] Ingresar Administrador")
+	print("---------------------------")
+	print("[0] Salir del programa")
+	print()
+
+
 	opcion = ""
 	while opcion != "0":
-		mostrar_menu_principal()
 		opcion = validar_opcion_menu(["0", "1", "2", "9"])
 		procesar_opcion_usuario(opcion)
 	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
