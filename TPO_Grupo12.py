@@ -470,6 +470,19 @@ def mostrar_usuarios():
 
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
+        
+def opcion_de_ingreso():
+    opcion_inicio = validar_opcion_menu(["1", "2"])
+	
+    if opcion_inicio == "1":
+        nombre, dni = creacion_usuario()
+        print(f"Usuario creado exitosamente. Bienvenido {nombre}!")
+    else:
+        validacion = False
+        while not validacion:
+            validacion = ingreso_usuario()
+            if not validacion:	
+                print("DNI no encontrado. Por favor, ingrese un DNI válido.")
 
 
 #PROGRAMA PRINCIPAL
@@ -481,17 +494,7 @@ def main():
 	print("[2] Ingresar con DNI")
 	print("---------------------------")
 	
-	opcion_inicio = validar_opcion_menu(["1", "2"])
-	
-	if opcion_inicio == "1":
-		nombre, dni = creacion_usuario()
-		print(f"Usuario creado exitosamente. Bienvenido {nombre}!")
-	else:
-		validacion = False
-		while not validacion:
-			validacion = ingreso_usuario()
-			if not validacion:	
-				print("DNI no encontrado. Por favor, ingrese un DNI válido.")
+	opcion_de_ingreso()
 		
             
 	print()
