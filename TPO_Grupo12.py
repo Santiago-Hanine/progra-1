@@ -1,11 +1,47 @@
 import json
+
 def creacion_usuario():
     nombre = input("Ingrese su nombre: ")
+    while nombre == "":
+        print("El nombre no puede estar vacío.")
+        nombre = input("Ingrese su nombre: ")
     dni = input("Ingrese su DNI: ")
     while len(dni) != 8:
         print("DNI no válido. Debe tener 8 dígitos.")
         dni = input("Ingrese su DNI: ")
-    return nombre, dni
+
+    try: 
+        entrada = open('usuarios.txt', 'rt', encoding='utf-8')
+        linea = entrada.readline()
+        while linea:
+            linea = linea.strip()
+            if linea:
+                partes = linea.split(';')
+                if len(partes) >= 2:
+                    dni_existente = partes[0]
+                    while dni_existente == dni:
+                        print("El DNI ya está registrado. Por favor, ingrese otro.")
+                        dni = input("Ingrese su DNI: ")
+                else:
+                    print("Línea mal formada:", linea)
+            else:
+                print("Línea mal formada:", linea)
+            linea = entrada.readline()
+            
+    except FileNotFoundError:
+        print("Error, archivo no encontrado.")
+    finally:
+        entrada.close()    
+        
+    try: 
+        archivo = open('usuarios.txt', 'a', encoding='utf-8')
+        archivo.write(dni + ';' + nombre + '\n')
+        print(f"Usuario {nombre} creado exitosamente.")
+        print("Bienvenido", nombre)
+    except IOError:
+        print("Error al escribir en el archivo usuarios.txt.")
+    finally:
+        archivo.close()
 
 def ingreso_usuario():
     input_dni = input("Ingrese su DNI: ")
@@ -475,8 +511,7 @@ def opcion_de_ingreso():
     opcion_inicio = validar_opcion_menu(["1", "2"])
 	
     if opcion_inicio == "1":
-        nombre, dni = creacion_usuario()
-        print(f"Usuario creado exitosamente. Bienvenido {nombre}!")
+        creacion_usuario()
     else:
         validacion = False
         while not validacion:

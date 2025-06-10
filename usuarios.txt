@@ -30,4 +30,3 @@
 46391022;Silvia Fuentes;Coldplay-3,Shakira-1
 47391023;Alberto Acosta;Shakira-3
 48391024;Teresa Cabrera;Coldplay-2
-49391025;Daniela Paredes;Coldplay-1,Shakira-2
