@@ -1,7 +1,11 @@
 {
     "1": {
         "Artista": "Taylor Swift",
-        "Fechas": ["01/07/24", "02/07/24", "03/07/24"],
+        "Fechas": [
+            "01/07/24",
+            "02/07/24",
+            "03/07/24"
+        ],
         "Sectores": {
             "Campo": {
                 "Nombre": "Campo",
@@ -11,7 +15,7 @@
             "Platea Alta": {
                 "Nombre": "Platea Alta",
                 "Precio": 65000,
-                "Disponibilidad": 500
+                "Disponibilidad": 496
             },
             "Platea Baja": {
                 "Nombre": "Platea Baja",
@@ -22,12 +26,15 @@
     },
     "2": {
         "Artista": "Coldplay",
-        "Fechas": ["15/08/24", "16/08/24"],
+        "Fechas": [
+            "15/08/24",
+            "16/08/24"
+        ],
         "Sectores": {
             "Campo": {
                 "Nombre": "Campo",
                 "Precio": 75000,
-                "Disponibilidad": 1200
+                "Disponibilidad": 1196
             },
             "Platea Alta": {
                 "Nombre": "Platea Alta",
@@ -43,7 +50,9 @@
     },
     "3": {
         "Artista": "Airbag",
-        "Fechas": ["28/04/25"],
+        "Fechas": [
+            "28/04/25"
+        ],
         "Sectores": {
             "Campo": {
                 "Nombre": "Campo",
