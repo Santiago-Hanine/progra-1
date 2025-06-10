@@ -1,4 +1,39 @@
 import json
+def creacion_usuario():
+    nombre = input("Ingrese su nombre: ")
+    dni = input("Ingrese su DNI: ")
+    while len(dni) != 8:
+        print("DNI no válido. Debe tener 8 dígitos.")
+        dni = input("Ingrese su DNI: ")
+    return nombre, dni
+
+def ingreso_usuario():
+    input_dni = input("Ingrese su DNI: ")
+    while len(input_dni) != 8:
+        print("DNI no válido. Debe tener 8 dígitos.")
+        input_dni = input("Ingrese su DNI: ")
+
+    try:
+        archivo = open('usuarios.txt', 'rt', encoding='utf-8')
+        linea = archivo.readline()
+        while linea:
+            linea = linea.strip()
+            if linea:
+                dni, nombre_apellido,eventos = linea.split(';')
+                if dni == input_dni:
+                    print(f"Bienvenido {nombre_apellido}")
+                    return True,nombre_apellido
+            
+            else:
+                print("Línea mal formada:", linea)
+            linea = archivo.readline()
+            return False,None
+    except FileNotFoundError:
+        print("El archivo usuarios.txt no existe.")
+        return
+    finally:
+        archivo.close()
+
 
 def cargar_eventos():
     """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
@@ -437,8 +472,32 @@ def mostrar_usuarios():
 
 #PROGRAMA PRINCIPAL
 def main():
-	"""Punto de entrada principal del programa."""
-	print()
+	print("---------------------------")
+	print("BIENVENIDO AL SISTEMA     ")
+	print("---------------------------")
+	print("[1] Crear usuario")
+	print("[2] Ingresar con DNI")
+	print("---------------------------")
+	
+	opcion_inicio = validar_opcion_menu(["1", "2"])
+	
+	if opcion_inicio == "1":
+		nombre, dni = creacion_usuario()
+		print(f"Usuario creado exitosamente. Bienvenido {nombre}!")
+	else:
+		validacion,nombre_apellido = ingreso_usuario()
+		if validacion:
+			print(f"Bienvenido {nombre_apellido}")
+		else:
+			print("DNI no encontrado. Por favor, ingrese un DNI válido.")
+    while not validacion:
+        validacion,nombre_apellido = ingreso_usuario()
+        if validacion:
+            print(f"Bienvenido {nombre_apellido}")
+        else:
+            print("DNI no encontrado. Por favor, ingrese un DNI válido.")
+            
+    print()
 	print("---------------------------")
 	print("MENÚ DEL SISTEMA           ")
 	print("---------------------------")
