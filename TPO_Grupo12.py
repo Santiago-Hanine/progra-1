@@ -1,115 +1,177 @@
-def comporobar_disponibilidad(artista, opcion_sector):
-    """"Comprueba si un sector tiene cupos para la cantidad requerida"""""
-    if opcion_sector == 1:
-        if eventos[artista - 1][2][1] == 0:
-            return False
-        else:
-            return True
-    elif opcion_sector == 2:
-        if eventos[artista - 1][3][1] == 0:
-            return False
-        else:
-            return True
-    elif opcion_sector == 3:
-        if eventos[artista - 1][4][1] == 0:
-            return False
-        else:
-            return True
+import json
 
-def seleccionar_artistas(eventos):
-    """"Mestra las opciones del menu artirta y le pide al usuario que ingrese su opcion"""""
-    print("Seleccione su artista")
-    for evento in eventos:
-        print("%d. %s" % (eventos.index(evento) + 1, evento[0]))
-    
-    opcion_elegida = int(input("Ingrese el numero del evento: "))
-    while opcion_elegida < 1 or opcion_elegida > len(eventos):
-        print("Opción no válida. Por favor, seleccione una opción del menú.")
-        opcion_elegida = int(input("Ingrese el numero del evento: "))
-    return opcion_elegida
+def cargar_eventos():
+    """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
+    try:
+        archivo = open('Eventos.json', 'rt', encoding='utf-8')
+        eventos_json = json.load(archivo)
+        archivo.close()
 
+        lista_eventos = []
+        i = 1
+        while str(i) in eventos_json:
+            evento = eventos_json[str(i)]
+            # Construimos la estructura de lista que usas para cada evento
+            nuevo_evento = [
+                evento['Artista'],          # nombre artista
+                evento['Fechas'],           # lista fechas
+                [evento['Sectores']['Campo']['Precio'], evento['Sectores']['Campo']['Disponibilidad']],
+                [evento['Sectores']['Platea Alta']['Precio'], evento['Sectores']['Platea Alta']['Disponibilidad']],
+                [evento['Sectores']['Platea Baja']['Precio'], evento['Sectores']['Platea Baja']['Disponibilidad']]
+            ]
+            lista_eventos.append(nuevo_evento)
+            i += 1
+        return lista_eventos
 
-def ver_fechas_del_artista(artista):
-    """"Mestra las fechas del artista elegido"""""
-    fechas = []
-    for evento in eventos[artista - 1][1]:
-        fechas.append(evento)
-    return fechas
+    except FileNotFoundError:
+        print("Archivo Eventos.json no encontrado. Se crea lista vacía.")
+        return []
+    except json.JSONDecodeError:
+        print("Error al leer JSON. Verifica el formato.")
+        return []
 
-def ver_entradas_disponibles(opcion_fecha):
-    """"Muestra las entradas disponibles para la fecha elegida"""""
-    print("Entradas disponibles para la fecha: ", opcion_fecha)
-    for evento in eventos:
-        if opcion_fecha in evento[1]:
-            print("Campo: ", evento[2][1])
-            print("Platea Alta: ", evento[3][1])
-            print("Platea Baja: ", evento[4][1])
-            return True
+def guardar_eventos(eventos):
+    """Guarda toda la lista de eventos en el archivo JSON con la estructura correcta."""
+    data = {}
+    i = 1
+    while i <= len(eventos):
+        evento = eventos[i-1]
+        data[str(i)] = {
+            'Artista': evento[0],
+            'Fechas': evento[1],
+            'Sectores': {
+                'Campo': {
+                    'Precio': evento[2][0],
+                    'Disponibilidad': evento[2][1]
+                },
+                'Platea Alta': {
+                    'Precio': evento[3][0],
+                    'Disponibilidad': evento[3][1]
+                },
+                'Platea Baja': {
+                    'Precio': evento[4][0],
+                    'Disponibilidad': evento[4][1]
+                }
+            }
+        }
+        i += 1
+    try:
+        archivo = open('Eventos.json', 'wt', encoding='utf-8')
+        json.dump(data, archivo, indent=4, ensure_ascii=False)
+        archivo.close()
+    except Exception as e:
+        print(f"Error al guardar el archivo JSON: {e}")
+
+# Cargamos los eventos al inicio para trabajar con ellos
+eventos = cargar_eventos()
+
+def comprobar_disponibilidad(artista, opcion_sector):
+    """
+    Verifica si en un sector del artista hay entradas disponibles.
+    artista: índice 1-based del artista en la lista eventos
+    opcion_sector: 1=Campo, 2=Platea Alta, 3=Platea Baja
+    """
+    if opcion_sector in [1, 2, 3]:
+        # En tu estructura, sectores están en índices 2, 3 y 4 respectivamente
+        return eventos[artista-1][opcion_sector + 1][1] > 0
     return False
 
+def seleccionar_artistas(eventos):
+    """Muestra artistas y devuelve el índice elegido (1-based)."""
+    print("Seleccione su artista:")
+    i = 0
+    while i < len(eventos):
+        print("%d. %s" % (i + 1, eventos[i][0]))
+        i += 1
+    opcion_elegida = int(input("Ingrese el número del evento: "))
+    while opcion_elegida < 1 or opcion_elegida > len(eventos):
+        print("Opción no válida. Por favor seleccione una opción del menú.")
+        opcion_elegida = int(input("Ingrese el número del evento: "))
+    return opcion_elegida
+
+def ver_fechas_del_artista(artista):
+    """Devuelve la lista de fechas disponibles para un artista."""
+    fechas = []
+    i = 0
+    while i < len(eventos[artista - 1][1]):
+        fechas.append(eventos[artista - 1][1][i])
+        i += 1
+    return fechas
 
 def seleccionar_sector(artista):
-    """"Mestra las opciones del menu sector y le pide al usuario que ingrese su opcion"""""
-    print ("Seleccione el sector:")
-    print("Sectores: ")
+    """
+    Muestra sectores para seleccionar y devuelve el índice correcto
+    o False si el sector no tiene disponibilidad.
+    """
+    print("Seleccione el sector:")
     print("1. Campo")
     print("2. Platea Alta")
     print("3. Platea Baja")
     opcion_sector = int(input("Ingrese el sector: "))
     while opcion_sector < 1 or opcion_sector > 3:
-        print("Opción no válida. Por favor, seleccione una opción del menú.")
+        print("Opción no válida. Por favor seleccione una opción del menú.")
         opcion_sector = int(input("Ingrese el sector: "))
-    disponibilidad = comporobar_disponibilidad(artista, opcion_sector)
-    if (disponibilidad):
-        print("El sector tiene disponibilidad")
+
+    if comprobar_disponibilidad(artista, opcion_sector):
+        print("El sector tiene disponibilidad.")
         print("Disponibilidad:", eventos[artista - 1][opcion_sector + 1][1], "entradas disponibles")
-        if (opcion_sector == 1):
-            print("Precio Campo: ", eventos[artista - 1][2][0])
+        if opcion_sector == 1:
+            print("Precio Campo:", eventos[artista - 1][2][0])
             return 2
-        elif (opcion_sector == 2):
-            print("Precio Platea Alta: ", eventos[artista - 1][3][0])
+        elif opcion_sector == 2:
+            print("Precio Platea Alta:", eventos[artista - 1][3][0])
             return 3
-        elif (opcion_sector == 3):
-            print("Precio Platea Baja: ", eventos[artista - 1][4][0])
+        elif opcion_sector == 3:
+            print("Precio Platea Baja:", eventos[artista - 1][4][0])
             return 4
     else:
-        print("El sector no tiene disponibilidad")
+        print("El sector no tiene disponibilidad.")
         return False
 
 def modificar_precio():
-    """"Modifica el precio de un sector"""""
+    """Modifica el precio de un sector de un artista y guarda los cambios."""
     print("---------------------------")
-    artista = int(seleccionar_artistas(eventos))
-    if artista == -1:
-        return
+    artista = seleccionar_artistas(eventos)
     sector = seleccionar_sector(artista)
+    if not sector:
+        print("No hay disponibilidad en el sector seleccionado para modificar el precio.")
+        return
     nuevo_precio = int(input("Ingrese el nuevo precio: "))
     while nuevo_precio <= 0:
-        print("El precio no puede ser negativo ni cero.")
+        print("El precio debe ser un número positivo.")
         nuevo_precio = int(input("Ingrese el nuevo precio: "))
     if sector == 2:
         eventos[artista - 1][2][0] = nuevo_precio
-        print("Precio Campo actualizado a: ", nuevo_precio)
+        print("Precio Campo actualizado a:", nuevo_precio)
     elif sector == 3:
         eventos[artista - 1][3][0] = nuevo_precio
-        print("Precio Platea Alta actualizado a: ", nuevo_precio)
+        print("Precio Platea Alta actualizado a:", nuevo_precio)
     elif sector == 4:
         eventos[artista - 1][4][0] = nuevo_precio
-        print("Precio Platea Baja actualizado a: ", nuevo_precio)
+        print("Precio Platea Baja actualizado a:", nuevo_precio)
+    guardar_eventos(eventos)
 
-def agregar_artistas(nombre, fechas,disponibilidad_campo, precio_campo, disponibilidad_platea_alta ,precio_platea_alta, disponibilidad_platea_baja, precio_platea_baja):
-    """"Agrega un artista al sistema"""""
-    nuevo_artista = [nombre, fechas,[disponibilidad_campo ,precio_campo], [disponibilidad_platea_alta ,precio_platea_alta], [disponibilidad_platea_baja,precio_platea_baja]]
+def agregar_artistas(nombre, fechas, disp_campo, precio_campo, disp_platea_alta, precio_platea_alta, disp_platea_baja, precio_platea_baja):
+    """Agrega un artista nuevo y guarda en el JSON."""
+    nuevo_artista = [
+        nombre,
+        fechas,
+        [precio_campo, disp_campo],
+        [precio_platea_alta, disp_platea_alta],
+        [precio_platea_baja, disp_platea_baja]
+    ]
     eventos.append(nuevo_artista)
-    print("Artista agregado con exito. ")
+    guardar_eventos(eventos)
+    print("Artista agregado con éxito.")
 
 def modificar_disponibilidad():
-    """"Modifica la disponibilidad de un sector"""""
+    """Modifica la disponibilidad de un sector y guarda cambios."""
     print("---------------------------")
-    artista = int(seleccionar_artistas(eventos))
-    sector =int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
-    while sector != 1 and sector != 2 and sector != 3:
-        print("Opción no válida. Por favor, seleccione una opción del menú.")
+    artista = seleccionar_artistas(eventos)
+    print("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): ")
+    sector = int(input())
+    while sector not in [1, 2, 3]:
+        print("Opción no válida. Por favor seleccione una opción del menú.")
         sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
     nueva_disponibilidad = int(input("Ingrese la nueva disponibilidad: "))
     while nueva_disponibilidad < 0:
@@ -117,214 +179,255 @@ def modificar_disponibilidad():
         nueva_disponibilidad = int(input("Ingrese la nueva disponibilidad: "))
     if sector == 1:
         eventos[artista - 1][2][1] = nueva_disponibilidad
-        print("Disponibilidad Campo actualizado a: ", nueva_disponibilidad)
+        print("Disponibilidad Campo actualizada a:", nueva_disponibilidad)
     elif sector == 2:
         eventos[artista - 1][3][1] = nueva_disponibilidad
-        print("Disponibilidad Platea Alta actualizado a: ", nueva_disponibilidad)
+        print("Disponibilidad Platea Alta actualizada a:", nueva_disponibilidad)
     elif sector == 3:
         eventos[artista - 1][4][1] = nueva_disponibilidad
-        print("Disponibilidad Platea Baja actualizado a: ", nueva_disponibilidad)
-
+        print("Disponibilidad Platea Baja actualizada a:", nueva_disponibilidad)
+    guardar_eventos(eventos)
+    
+def ver_entradas_disponibles(opcion_fecha):
+    """Muestra las entradas disponibles para una fecha específica."""
+    print("Entradas disponibles para la fecha:", opcion_fecha)
+    print("---------------------------")
+    for evento in eventos:
+    	if opcion_fecha in evento[1]:  # Verifica si la fecha está en las fechas del artista
+            print("Artista:", evento[0])
+            print("Campo:", evento[2][1], "entradas disponibles")
+            print("Platea Alta:", evento[3][1], "entradas disponibles")
+            print("Platea Baja:", evento[4][1], "entradas disponibles")
+            print("---------------------------")
+	
 
 #PROGRAMA PRINCIPAL
+def mostrar_menu_principal():
+	"""Muestra el menú principal del sistema."""
+	print()
+	print("---------------------------")
+	print("MENÚ DEL SISTEMA           ")
+	print("---------------------------")
+	print("[1] Ver artistas")
+	print("[2] Filtrar artistas por precio")
+	print("[9] Ingresar Administrador")
+	print("---------------------------")
+	print("[0] Salir del programa")
+	print()
+
+def validar_opcion_menu(opciones_validas):
+	"""Valida que la opción ingresada sea válida."""
+	opcion = input("Seleccione una opción: ")
+	while opcion not in opciones_validas:
+		print("Opción no válida. Por favor, seleccione una opción del menú.")
+		opcion = input("Seleccione una opción: ")
+	return opcion
+
+def procesar_opcion_usuario(opcion):
+	"""Procesa las opciones del usuario en el menú principal."""
+	if opcion == "1":
+		procesar_opcion_ver_artistas()
+	elif opcion == "2":
+		filtrar_artistas_por_precio()
+	elif opcion == "9":
+		ingresar_administrador()
+
+def procesar_opcion_ver_artistas():
+	"""Procesa la opción de ver artistas y sus subopciones."""
+	artista = int(seleccionar_artistas(eventos))
+	print("Artista elegido: ", eventos[artista - 1][0])
+	print("---------------------------")
+	print("¿Qué desea hacer?")
+	print("---------------------------")
+	print("[1] Proceder con la compra")
+	print("[2] Ver fechas disponibles")
+	print("[3] Ver entradas disponibles")
+	opcion_elegida = validar_opcion_menu(["1", "2", "3"])
+	
+	if opcion_elegida == "1":
+		proceder_con_compra(artista)
+	elif opcion_elegida == "2":
+		mostrar_fechas_disponibles(artista)
+	elif opcion_elegida == "3":
+		ver_entradas_disponibles_por_fecha(artista)
+
+def proceder_con_compra(artista):
+	"""Permite al usuario proceder con la compra de entradas."""
+	sector = seleccionar_sector(artista)
+	while not sector:
+		print("Sector sin entradas disponibles.")
+		sector = seleccionar_sector(artista)
+	cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+	while cantidad_de_entradas > eventos[artista - 1][sector][1] or cantidad_de_entradas <= 0:
+		print("Cantidad no válida. Verifique la disponibilidad o ingrese un número positivo.")
+		cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+	total = cantidad_de_entradas * eventos[artista - 1][sector][0]
+	print(f"Total a pagar: {total}")
+	print("Entradas compradas con éxito. ¡Gracias por su compra!")
+
+def mostrar_fechas_disponibles(artista):
+	"""Muestra las fechas disponibles para un artista."""
+	fechas = ver_fechas_del_artista(artista)
+	print("Fechas disponibles:")
+	for fecha in fechas:
+		print("-", fecha)
+
+def ver_entradas_disponibles_por_fecha(artista):
+	"""Muestra las entradas disponibles para una fecha específica."""
+	print("Ver entradas disponibles")
+	print("---------------------------")
+	fechas_disponibles = ver_fechas_del_artista(artista)
+	for fecha in fechas_disponibles:
+		print(fecha)
+	opcion_fecha = input("Ingrese la fecha: ")
+	while opcion_fecha not in fechas_disponibles:
+		print("Fecha no válida.")
+		opcion_fecha = input("Ingrese la fecha: ")
+	ver_entradas_disponibles(opcion_fecha)
+
+def filtrar_artistas_por_precio():
+	"""Permite filtrar artistas por precio y sector."""
+	print("Filtrar artistas por precio")
+	print("---------------------------")
+	opcion_de_filtro = input("¿Desea filtrar por mayor o menor precio? (mayor/menor): ")
+	while opcion_de_filtro not in ["mayor", "menor"]:
+		print("Opción no válida.")
+		opcion_de_filtro = input("¿Desea filtrar por mayor o menor precio? (mayor/menor): ")
+	precio = int(input("Ingrese el precio: "))
+	while precio <= 0:
+		print("El precio debe ser un número positivo.")
+		precio = int(input("Ingrese el precio: "))
+	tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
+	while tipo_de_sector not in [1, 2, 3]:
+		print("Opción no válida.")
+		tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
+	
+	if opcion_de_filtro == "mayor":
+		artistas_filtrados = [artista for artista in eventos if artista[tipo_de_sector + 1][0] > precio]
+	else:
+		artistas_filtrados = [artista for artista in eventos if artista[tipo_de_sector + 1][0] < precio]
+	
+	if not artistas_filtrados:
+		print(f"No hay artistas con precios {opcion_de_filtro} a {precio}.")
+	else:
+		for artista in artistas_filtrados:
+			print(f"Artista: {artista[0]}, Precio: {artista[tipo_de_sector + 1][0]}")
+
+def ingresar_administrador():
+	"""Permite el ingreso al menú de administrador."""
+	print("Ingreso de administrador")
+	print("---------------------------")
+	usuario = input("Ingrese su usuario: ")
+	contrasena = input("Ingrese su contraseña: ")
+	if usuario == "admin" and contrasena == "admin":
+		mostrar_menu_administrador()
+	else:
+		print("Usuario o contraseña incorrectos.")
+
+def mostrar_menu_administrador():
+	"""Muestra el menú de administrador y procesa sus opciones."""
+	opcion_administrador = ""
+	while opcion_administrador != "0":
+		print()
+		print("Bienvenido Administrador")
+		print("---------------------------")
+		print("[1] Modificar precios")
+		print("[2] Modificar disponibilidad")
+		print("[3] Agregar artistas")
+		print("---------------------------")
+		print("[0] Salir")
+		print("---------------------------")
+		opcion_administrador = validar_opcion_menu(["1", "2", "3", "0"])
+		
+		if opcion_administrador == "1":
+			modificar_precio()
+		elif opcion_administrador == "2":
+			modificar_disponibilidad()
+		elif opcion_administrador == "3":
+			agregar_nuevo_artista()
+
+def es_bisiesto(año):
+    return (año % 4 == 0 and año % 100 != 0) or (año % 400 == 0)
+
+def es_fecha_valida(fecha):
+    partes = fecha.split('/')
+    if len(partes) != 3:
+        return False
+    
+    try:
+        dia = int(partes[0])
+        mes = int(partes[1])
+        año = int(partes[2])
+
+    except ValueError:
+        return False
+    
+    if año < 1 or mes < 1 or mes > 12 or dia < 1:
+        return False
+    
+    dias_por_mes = [31, 29 if es_bisiesto(año) else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    
+    if dia > dias_por_mes[mes - 1]:
+        return False
+    
+    return True
+
+
+def agregar_nuevo_artista():
+	"""Permite agregar un nuevo artista al sistema."""
+	nombre = input("Ingrese el nombre del artista: ")
+	while not nombre:
+		print("El nombre no puede estar vacío.")
+		nombre = input("Ingrese el nombre del artista: ")
+	
+	fechas = input("Ingrese las fechas del artista (separadas por comas) dd/mm/yy: ").split(",")
+    
+	for i in range(len(fechas)):
+		fechas[i] = fechas[i].strip()
+		while not es_fecha_valida(fechas[i]):
+			print('Fecha no valida. Debe estar en formato dd/mm/yy y ser una fecha real.')
+			fechas[i] = input("Ingrese la fecha nuevamente: ").strip()
+
+	print("Fechas válidas ingresadas:")
+
+	for fecha in fechas:
+		print("- ", fecha)
+
+	precio_campo = int(input("Ingrese el precio del campo: "))
+	while precio_campo <= 0:
+		print("El precio debe ser un número positivo.")
+		precio_campo = int(input("Ingrese el precio del campo: "))
+	disponibilidad_campo = int(input("Ingrese la disponibilidad del campo: "))
+	while disponibilidad_campo < 0:
+		print("La disponibilidad no puede ser negativa.")
+		disponibilidad_campo = int(input("Ingrese la disponibilidad del campo: "))
+	precio_platea_alta = int(input("Ingrese el precio de la platea alta: "))
+	while precio_platea_alta <= 0:
+		print("El precio debe ser un número positivo.")
+		precio_platea_alta = int(input("Ingrese el precio de la platea alta: "))
+	disponibilidad_platea_alta = int(input("Ingrese la disponibilidad de la platea alta: "))
+	while disponibilidad_platea_alta < 0:
+		print("La disponibilidad no puede ser negativa.")
+		disponibilidad_platea_alta = int(input("Ingrese la disponibilidad de la platea alta: "))
+	precio_platea_baja = int(input("Ingrese el precio de la platea baja: "))
+	while precio_platea_baja <= 0:
+		print("El precio debe ser un número positivo.")
+		precio_platea_baja = int(input("Ingrese el precio de la platea baja: "))
+	disponibilidad_platea_baja = int(input("Ingrese la disponibilidad de la platea baja: "))
+	while disponibilidad_platea_baja < 0:
+		print("La disponibilidad no puede ser negativa.")
+		disponibilidad_platea_baja = int(input("Ingrese la disponibilidad de la platea baja: "))
+	
+	agregar_artistas(nombre, fechas, disponibilidad_campo, precio_campo, disponibilidad_platea_alta, precio_platea_alta, disponibilidad_platea_baja, precio_platea_baja)
+	print("Artista agregado con éxito.")
+
 def main():
-    opcion = ""
-    while opcion != "0":
-        print()
-        print("---------------------------")
-        print("MENÚ DEL SISTEMA           ")
-        print("---------------------------")
-        print("[1] Ver artistas")
-        print('[2] Filtar artistas por precio')
-        print("[9] Ingresar Administrador")
-        print("---------------------------")
-        print("[0] Salir del programa")
-        print()
+	"""Punto de entrada principal del programa."""
+	opcion = ""
+	while opcion != "0":
+		mostrar_menu_principal()
+		opcion = validar_opcion_menu(["0", "1", "2", "9"])
+		procesar_opcion_usuario(opcion)
+	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
 
-        opcion = int(input("Seleccione una opción: "))
-        while opcion != 1 and opcion != 2 and opcion != 3 and opcion != 9 and opcion != 0:
-            print("Opción no válida. Por favor, seleccione una opción del menú.")
-            opcion = int(input("Seleccione una opción: "))
-        if opcion == 0:
-            print("Gracias por usar el sistema de venta de entradas.")
-            print("Hasta luego!")
-            return
-        if opcion == 1 or opcion == 2 or opcion == 3 or opcion == 9:
-            if opcion == 1:
-                artista = int(seleccionar_artistas(eventos))
-                print("Artista elegido: ", eventos[artista - 1][0])
-                print("---------------------------")
-                print("Que desea hacer?")
-                print("---------------------------")
-                print("[1] Proceder con la compra")
-                print("[2] Ver fechas disponibles")
-                print("[3] Ver entradas disponibles")
-                opcion_elegida = int(input('Seleccione una opcion: '))
-                while opcion_elegida != 1 and opcion_elegida != 2 and opcion_elegida != 3:
-                    print("Opción no válida. Por favor, seleccione una opción del menú.")
-                    opcion_elegida = int(input('Seleccione una opcion: '))
-            
-                if(opcion_elegida == 1):
-                    sector = seleccionar_sector(artista)
-                    while sector == False:
-                        print("Sector sin entradas disponibles.")
-                        sector = seleccionar_sector(artista)
-                    print("Sector elegido con exito.", )
-                    cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-                    while cantidad_de_entradas > eventos[artista - 1][sector][1]:
-                        print("No hay disponibilidad suficiente.")
-                        cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-                    while cantidad_de_entradas <= 0:
-                        print("La cantidad de entradas no puede ser negativa ni cero.")
-                        cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-                    print("Cantidad de entradas elegida: ", cantidad_de_entradas)
-                    print()
-                    print("Total a pagar: ", cantidad_de_entradas * eventos[artista - 1][sector][0])
-                    print("Entradas compradas con exito.")
-                    print("Gracias por su compra!")
-                elif(opcion_elegida == 2):
-                    fechas = ver_fechas_del_artista(artista)
-                    print('Fechas disponibles: ')
-                    for fecha in fechas: 
-                        print('-', fecha)
-                            
-                elif opcion_elegida == 3:
-                    print("Ver entradas disponibles")
-                    print("---------------------------")
-                    print("Fechas Disponibles")
-                    fechas_disponibles = ver_fechas_del_artista(artista)
-                    for fecha in fechas_disponibles:
-                        print(fecha)
-                    opcion_fecha = input("Ingrese la fecha: ")
-                    while opcion_fecha not in fechas_disponibles:
-                        print("Fecha no valida")
-                        opcion_fecha = input("Ingrese la fecha: ")
-                    ver_entradas_disponibles(opcion_fecha)
-
-            elif opcion == 2:  # Opción 2
-                print("Filtrar artistas por precio")
-                print("---------------------------")
-                opcion_de_filtro = input("Desea filtrar por mayor o menor precio? mayor/menor: ")
-                while opcion_de_filtro != "mayor" and opcion_de_filtro != "menor":
-                    print("Opción no válida. Por favor, seleccione una opción del menú.")
-                    opcion_de_filtro = input("Desea filtrar por mayor o menor precio? mayor/menor ")
-                precio = int(input("Ingrese el precio: "))
-                while precio <= 0:
-                    print("El precio no puede ser negativo ni cero.")
-                    precio = int(input("Ingrese el precio: "))
-                tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
-                while tipo_de_sector != 1 and tipo_de_sector != 2 and tipo_de_sector != 3:
-                    print("Opción no válida. Por favor, seleccione una opción del menú.")
-                    tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
-                if opcion_de_filtro == "mayor":
-                    print("Artistas con precios mayores a ", precio)
-                    artistas_filtrados = list(filter(lambda x: x[tipo_de_sector + 1][0] > precio, eventos))
-                    if len(artistas_filtrados) == 0:
-                        print("No hay artistas con precios menores a ", precio)
-                    else:
-                        print("------------------------")
-                        for artista in artistas_filtrados:
-                            print("Artista: ", artista[0])
-                            print("Precio: ", artista[tipo_de_sector + 1][0])
-                            print("------------------------")
-                elif opcion_de_filtro == "menor":
-                    artistas_filtrados = list(filter(lambda x: x[tipo_de_sector + 1][0] < precio, eventos))
-                    if len(artistas_filtrados) == 0:
-                        print("No hay artistas con precios menores a ", precio)
-                    else:
-                        print("------------------------")
-                        for artista in artistas_filtrados:
-                            print("Artista: ", artista[0])
-                            print("Precio: ", artista[tipo_de_sector + 1][0])
-                            print("------------------------")
-
-            elif opcion == 9:   # Opción 9
-                print()
-                print("Ingreso de administrador")
-                print("---------------------------")
-                print("Ingrese su usuario: ")
-                usuario = input()
-                print("Ingrese su contraseña: ")
-                contrasena = input()
-                if usuario == "admin" and contrasena == "admin":
-                    opcion_administrador = ""
-                    while opcion_administrador != 0:
-                        print()
-                        print("Bienvenido Administrador")
-                        print("---------------------------")
-                        print("1. Modificar precios")
-                        print("2. Modificar disponibilidad")
-                        print("3. Agregar artistas")
-                        print("---------------------------")
-                        print("0. Salir")
-                        print("---------------------------")
-                        opcion_administrador = int(input('Seleccione una opcion: '))
-                        while opcion_administrador != 1 and opcion_administrador != 2 and opcion_administrador != 3 and opcion_administrador != 0:
-                            print("Opción no válida. Por favor, seleccione una opción del menú.")
-                            opcion_administrador = int(input('Seleccione una opcion: '))
-                        if opcion_administrador == 0:
-                            print("Gracias por usar el sistema de venta de entradas.")
-                            print("Hasta luego!")
-                        if opcion_administrador == 1:
-                            print("Modificar precios")
-                            modificar_precio()
-                        elif opcion_administrador == 2:
-                            print("Modificar disponibilidad")
-                            modificar_disponibilidad()
-                        elif opcion_administrador == 3:
-                            nombre = input("Ingrese el nombre del artista: ")
-                            while nombre == "":
-                                print("El nombre no puede estar vacío.")
-                                nombre = input("Ingrese el nombre del artista: ")
-                            fechas = input("Ingrese las fechas del artista (separadas por comas) dd/mm/yy: ").split(",")
-                            while len(fechas) == 0 or any(fechas) == "":
-                                print("Las fechas no pueden estar vacías.")
-                                fechas = input("Ingrese las fechas del artista (separadas por comas): ").split(",")
-                            precio_campo = int(input("Ingrese el precio del campo: "))
-                            while precio_campo <= 0 or precio_campo == "":
-                                print("El precio no puede ser negativo ni cero.")
-                                precio_campo = int(input("Ingrese el precio del campo: "))
-                            disponibilidad_campo = int(input("Ingrese la disponibilidad del campo: "))
-                            while disponibilidad_campo < 0 or disponibilidad_campo == "":
-                                print("La disponibilidad no puede ser negativa.")
-                                disponibilidad_campo = int(input("Ingrese la disponibilidad del campo: "))
-                            precio_platea_alta = int(input("Ingrese el precio de la platea alta: "))
-                            while precio_platea_alta <= 0 or precio_platea_alta == "":
-                                print("El precio no puede ser negativo ni cero.")
-                                precio_platea_alta = int(input("Ingrese el precio de la platea alta: "))
-                            disponibilidad_platea_alta = int(input("Ingrese la disponibilidad de la platea alta: "))
-                            while disponibilidad_platea_alta < 0 or disponibilidad_platea_alta == "":
-                                print("La disponibilidad no puede ser negativa.")
-                                disponibilidad_platea_alta = int(input("Ingrese la disponibilidad de la platea alta: "))
-                            precio_platea_baja = int(input("Ingrese el precio de la platea baja: "))
-                            while precio_platea_baja <= 0 or precio_platea_baja == "":
-                                print("El precio no puede ser negativo ni cero.")
-                                precio_platea_baja = int(input("Ingrese el precio de la platea baja: "))
-                            disponibilidad_platea_baja = int(input("Ingrese la disponibilidad de la platea baja: "))
-                            while disponibilidad_platea_baja < 0 or disponibilidad_platea_baja == "":
-                                print("La disponibilidad no puede ser negativa.")
-                                disponibilidad_platea_baja = int(input("Ingrese la disponibilidad de la platea baja: "))
-                            agregar_artistas(nombre, fechas,disponibilidad_campo, precio_campo, disponibilidad_platea_alta ,precio_platea_alta, disponibilidad_platea_baja, precio_platea_baja)
-                            print("Listado actualizado con exito.")
-                            for evento in eventos:
-                                print("Artista:", evento[0])
-                                print("Fechas:", ", ".join(evento[1]))
-                                print("Campo: $", evento[2][0], "(", evento[2][1], "disponibles)")
-                                print("Platea Alta: $", evento[3][0], "(", evento[3][1], "disponibles)")
-                                print("Platea Baja: $", evento[4][0], "(", evento[4][1], "disponibles)")
-                                print("-" * 40)
-                else:
-                    print("Usuario o contraseña incorrectos.")
-
-
-# Matriz de eventos
-eventos = [
-    # Artista, Fechas donde toca     , Precio y disponibilidad de entradas (Campo, platea alta, platea baja )
-    ['Tini', ['22/04/25', '23/04/25'], [2000, 1000], [3000, 200], [3500, 100]],
-    ['Duki', ['25/04/25', '26/04/25'], [1300, 400], [2500, 400], [1500, 800]],
-    ['Airbag', ['28/04/25', '29/04/25'], [2000, 200], [4000, 450], [1500, 200]]
-]
-
-
-# Punto de entrada al programa
 main()
