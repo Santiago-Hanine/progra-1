@@ -21,13 +21,15 @@ def ingreso_usuario():
             if linea:
                 dni, nombre_apellido,eventos = linea.split(';')
                 if dni == input_dni:
+                    print()
+                    print()
                     print(f"Bienvenido {nombre_apellido}")
-                    return True,nombre_apellido
+                    return True
             
             else:
                 print("Línea mal formada:", linea)
             linea = archivo.readline()
-            return False,None
+            return False
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
         return
@@ -485,19 +487,14 @@ def main():
 		nombre, dni = creacion_usuario()
 		print(f"Usuario creado exitosamente. Bienvenido {nombre}!")
 	else:
-		validacion,nombre_apellido = ingreso_usuario()
-		if validacion:
-			print(f"Bienvenido {nombre_apellido}")
-		else:
-			print("DNI no encontrado. Por favor, ingrese un DNI válido.")
-    while not validacion:
-        validacion,nombre_apellido = ingreso_usuario()
-        if validacion:
-            print(f"Bienvenido {nombre_apellido}")
-        else:
-            print("DNI no encontrado. Por favor, ingrese un DNI válido.")
+		validacion = False
+		while not validacion:
+			validacion = ingreso_usuario()
+			if not validacion:	
+				print("DNI no encontrado. Por favor, ingrese un DNI válido.")
+		
             
-    print()
+	print()
 	print("---------------------------")
 	print("MENÚ DEL SISTEMA           ")
 	print("---------------------------")
