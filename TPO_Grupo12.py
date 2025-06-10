@@ -320,10 +320,11 @@ def mostrar_menu_administrador():
 		print("[1] Modificar precios")
 		print("[2] Modificar disponibilidad")
 		print("[3] Agregar artistas")
+		print("[4] Ver Usuarios")
 		print("---------------------------")
 		print("[0] Salir")
 		print("---------------------------")
-		opcion_administrador = validar_opcion_menu(["1", "2", "3", "0"])
+		opcion_administrador = validar_opcion_menu(["1", "2", "3", "4", "0"])
 		
 		if opcion_administrador == "1":
 			modificar_precio()
@@ -331,6 +332,8 @@ def mostrar_menu_administrador():
 			modificar_disponibilidad()
 		elif opcion_administrador == "3":
 			agregar_nuevo_artista()
+		elif opcion_administrador == "4":
+		    mostrar_usuarios()
 
 def es_bisiesto(año):
     return (año % 4 == 0 and año % 100 != 0) or (año % 400 == 0)
@@ -406,8 +409,33 @@ def agregar_nuevo_artista():
 	
 	agregar_artistas(nombre, fechas, disponibilidad_campo, precio_campo, disponibilidad_platea_alta, precio_platea_alta, disponibilidad_platea_baja, precio_platea_baja)
 	print("Artista agregado con éxito.")
- #PROGRAMA PRINCIPAL
 
+def mostrar_usuarios():
+    """Muestra los usuarios en forma de tabla desde usuarios.txt."""
+    try:
+        archivo = open('usuarios.txt', 'rt', encoding='utf-8')
+
+        print('Usuarios Registrados: ')
+        print(f"{'DNI':<15}{'Nombre y Apellido':<30}{'Eventos':<20}")
+        print(f"{'-'*15}{'-'*30}{'-'*20}")
+        linea = archivo.readline()
+        while linea:
+            linea = linea.strip()  # Quitar salto de línea final
+            if linea:  # Solo procesar si no está vacía
+                dni, nombre_apellido, eventos = linea.split(';')
+                eventos = eventos[:-2]
+                print(f"{dni:<15}{nombre_apellido:<30}{eventos:<20}")
+            else:
+                print("Línea mal formada:", linea)
+            linea = archivo.readline()
+
+        archivo.close()
+
+    except FileNotFoundError:
+        print("El archivo usuarios.txt no existe.")
+
+
+#PROGRAMA PRINCIPAL
 def main():
 	"""Punto de entrada principal del programa."""
 	print()
