@@ -261,6 +261,39 @@ def modificar_disponibilidad():
         print("Disponibilidad Platea Baja actualizada a:", nueva_disponibilidad)
     guardar_eventos(eventos)
     
+def bajar_fecha():
+    """Bajar una fecha de un artista y guarda los cambios."""
+    print("---------------------------")
+    artista = seleccionar_artistas(eventos)
+    print(f"Fechas disponibles: {eventos[artista - 1][1]}")
+    fecha = input("Ingrese la fecha a bajar: ")
+    while fecha not in eventos[artista - 1][1]:
+        print("Fecha no encontrada.")
+    eventos[artista - 1][1].remove(fecha)
+    guardar_eventos(eventos)
+    print("Fecha eliminada con éxito.")
+
+def bajar_sector():
+    """Da de Baja un sector de un artista y guarda los cambios."""
+    artista = seleccionar_artistas(eventos)
+    sector = seleccionar_sector(artista)
+    print(f"Sector seleccionado: {sector}")
+    if not sector:
+        print("No hay disponibilidad en el sector seleccionado para bajar.")
+        return
+    eventos[artista - 1][sector][1] = 0
+    guardar_eventos(eventos)
+    print("Sector eliminado con éxito.")
+
+def agregar_fecha():
+    """Agregar una fecha a un artista y guarda los cambios."""
+    print("---------------------------")
+    artista = seleccionar_artistas(eventos)
+    fecha = input("Ingrese la fecha a agregar: ")
+    eventos[artista - 1][1].append(fecha)
+    guardar_eventos(eventos)
+    
+
 def ver_entradas_disponibles(opcion_fecha):
     """Muestra las entradas disponibles para una fecha específica."""
     print("Entradas disponibles para la fecha:", opcion_fecha)
@@ -394,10 +427,13 @@ def mostrar_menu_administrador():
 		print("[2] Modificar disponibilidad")
 		print("[3] Agregar artistas")
 		print("[4] Ver Usuarios")
+		print("[5] Baja fecha")
+		print("[6] Baja sector")
+		print("[7] Agregar fecha")
 		print("---------------------------")
 		print("[0] Salir")
 		print("---------------------------")
-		opcion_administrador = validar_opcion_menu(["1", "2", "3", "4", "0"])
+		opcion_administrador = validar_opcion_menu(["1", "2", "3", "4", "5", "6", "7", "0"])
 		
 		if opcion_administrador == "1":
 			modificar_precio()
@@ -406,7 +442,13 @@ def mostrar_menu_administrador():
 		elif opcion_administrador == "3":
 			agregar_nuevo_artista()
 		elif opcion_administrador == "4":
-		    mostrar_usuarios()
+			mostrar_usuarios()
+		elif opcion_administrador == "5":
+			bajar_fecha()
+		elif opcion_administrador == "6":
+			bajar_sector()
+		elif opcion_administrador == "7":
+			agregar_fecha()
 
 def es_bisiesto(año):
     return (año % 4 == 0 and año % 100 != 0) or (año % 400 == 0)
