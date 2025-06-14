@@ -20,6 +20,8 @@ def cargar_eventos():
 # Cargamos los eventos al inicio para trabajar con ellos
 eventos = cargar_eventos()
 
+dni = ""
+
 def creacion_usuario():
     nombre = input("Ingrese su nombre: ")
     while nombre == "":
@@ -80,7 +82,7 @@ def ingreso_usuario():
                     print()
                     print()
                     print(f"Bienvenido {nombre_apellido}")
-                    return True
+                    return True, input_dni
             
             else:
                 print("Línea mal formada:", linea)
@@ -344,6 +346,8 @@ def procesar_opcion_usuario(opcion):
 		procesar_opcion_ver_artistas()
 	elif opcion == "2":
 		crear_asientos()
+	elif opcion == "3":
+		ver_dni()
 	elif opcion == "9":
 		ingresar_administrador()
 
@@ -551,10 +555,12 @@ def opcion_de_ingreso():
         creacion_usuario()
     else:
         validacion = False
+        dni = None
         while not validacion:
-            validacion = ingreso_usuario()
+            validacion, dni = ingreso_usuario()
             if not validacion:	
                 print("DNI no encontrado. Por favor, ingrese un DNI válido.")
+        return dni
 
 def crear_asientos():
     # Cargar datos del archivo JSON
@@ -629,14 +635,18 @@ def main():
 		print("---------------------------")
 		print("[1] Ver artistas")
 		print("[2] Crear asientos")
+		print("[3] Mis datos")
 		print("[9] Ingresar Administrador")
 		print("---------------------------")
 		print("[0] Salir del programa")
 		print()
 		
-		opcion = validar_opcion_menu(["0", "1", "2" ,"9"])
+		opcion = validar_opcion_menu(["0", "1", "2", "3" ,"9"])
 		procesar_opcion_usuario(opcion)
 	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
+
+def ver_dni():
+    print('Tu dni es: ', dni_usuario)
 
 def bienvenida():
     print("---------------------------")
@@ -646,7 +656,8 @@ def bienvenida():
     print("[2] Ingresar con DNI")
     print("---------------------------")
 	
-    opcion_de_ingreso()
+    dni = opcion_de_ingreso()
+    return dni
     
-bienvenida()
+dni_usuario = bienvenida()
 main()
