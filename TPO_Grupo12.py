@@ -1,12 +1,41 @@
 import json
 import random
 
+def ver_mis_shows():
+    try:
+        dni = input("Ingrese su DNI: ")
+        archivo = open("usuarios.txt", "r")
+        linea = archivo.readline()
+        encontrado = False
+        
+        while linea and not encontrado:
+            if linea:  # Solo procesar si no está vacía
+                datos = linea.split(';')
+                if datos[0] == dni:
+                    encontrado = True
+                    print(f"\nDNI: {dni}")
+                    print(f"Nombre: {datos[1]}")
+                    print("Shows comprados y cantidad de entradas:")
+                    shows = datos[2].strip('-').split(',')
+                    for show in shows:
+                        if show:  # Solo mostrar shows no vacíos
+                            print(f"- {show}")
+            linea = archivo.readline()
+            
+        if not encontrado:
+            print("No se encontraron shows para este DNI.")
+            
+        archivo.close()
+        
+    except FileNotFoundError:
+        print("El archivo usuarios.txt no existe.")
+
 
 def crear_asientos():
     # Cargar datos del archivo JSON
     with open('Eventos.json', 'r', encoding='utf-8') as archivo:
         eventos = json.load(archivo)
-    
+
     # Mostrar lista de artistas disponibles
     print("\nArtistas disponibles:")
     artistas = []
@@ -394,6 +423,8 @@ def procesar_opcion_usuario(opcion):
 		filtrar_artistas_por_precio()
 	elif opcion == "3":
 		crear_asientos()
+	elif opcion == "4":
+		ver_mis_shows()
 	elif opcion == "9":
 		ingresar_administrador()
 
@@ -659,6 +690,7 @@ def main():
 	print("[1] Ver artistas")
 	print("[2] Filtrar artistas por precio")
 	print("[3] ver disponibilidad de asientos")
+	print("[4] ver mis shows")
 	print("[9] Ingresar Administrador")
 	print("---------------------------")
 	print("[0] Salir del programa")
@@ -667,7 +699,7 @@ def main():
 
 	opcion = ""
 	while opcion != "0":
-		opcion = validar_opcion_menu(["0", "1", "2", "3", "9"])
+		opcion = validar_opcion_menu(["0", "1", "2", "3", "4", "9"])
 		procesar_opcion_usuario(opcion)
 	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
 
