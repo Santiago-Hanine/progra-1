@@ -1,4 +1,24 @@
-import json
+import json, random
+
+
+def cargar_eventos():
+    """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
+    try:
+        archivo = open('Eventos.json', 'rt', encoding='utf-8')
+        eventos_json = json.load(archivo)
+        archivo.close()
+
+        return eventos_json;
+
+    except FileNotFoundError:
+        print("Archivo Eventos.json no encontrado. Se crea lista vacía.")
+        return []
+    except json.JSONDecodeError:
+        print("Error al leer JSON. Verifica el formato.")
+        return []
+    
+# Cargamos los eventos al inicio para trabajar con ellos
+eventos = cargar_eventos()
 
 def creacion_usuario():
     nombre = input("Ingrese su nombre: ")
@@ -65,65 +85,33 @@ def ingreso_usuario():
             else:
                 print("Línea mal formada:", linea)
             linea = archivo.readline()
-            return False
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
         return
     finally:
         archivo.close()
 
-
-def cargar_eventos():
-    """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
-    try:
-        archivo = open('Eventos.json', 'rt', encoding='utf-8')
-        eventos_json = json.load(archivo)
-        archivo.close()
-
-        lista_eventos = []
-        i = 1
-        while str(i) in eventos_json:
-            evento = eventos_json[str(i)]
-            # Construimos la estructura de lista que usas para cada evento
-            nuevo_evento = [
-                evento['Artista'],          # nombre artista
-                evento['Fechas'],           # lista fechas
-                [evento['Sectores']['Campo']['Precio'], evento['Sectores']['Campo']['Disponibilidad']],
-                [evento['Sectores']['Platea Alta']['Precio'], evento['Sectores']['Platea Alta']['Disponibilidad']],
-                [evento['Sectores']['Platea Baja']['Precio'], evento['Sectores']['Platea Baja']['Disponibilidad']]
-            ]
-            lista_eventos.append(nuevo_evento)
-            i += 1
-        return lista_eventos
-
-    except FileNotFoundError:
-        print("Archivo Eventos.json no encontrado. Se crea lista vacía.")
-        return []
-    except json.JSONDecodeError:
-        print("Error al leer JSON. Verifica el formato.")
-        return []
-
 def guardar_eventos(eventos):
     """Guarda toda la lista de eventos en el archivo JSON con la estructura correcta."""
     data = {}
     i = 1
     while i <= len(eventos):
-        evento = eventos[i-1]
+        evento = eventos[str(i)]
         data[str(i)] = {
-            'Artista': evento[0],
-            'Fechas': evento[1],
+            'Artista': evento['Artista'],
+            'Fechas': evento['Fechas'],
             'Sectores': {
                 'Campo': {
-                    'Precio': evento[2][0],
-                    'Disponibilidad': evento[2][1]
+                    'Precio': evento["Sectores"]["Campo"]["Precio"],
+                    'Disponibilidad':  evento["Sectores"]["Campo"]["Disponibilidad"]
                 },
                 'Platea Alta': {
-                    'Precio': evento[3][0],
-                    'Disponibilidad': evento[3][1]
+                    'Precio': evento["Sectores"]["Platea Alta"]["Precio"],
+                    'Disponibilidad': evento["Sectores"]["Platea Alta"]["Disponibilidad"]
                 },
                 'Platea Baja': {
-                    'Precio': evento[4][0],
-                    'Disponibilidad': evento[4][1]
+                    'Precio': evento["Sectores"]["Platea Baja"]["Precio"],
+                    'Disponibilidad': evento["Sectores"]["Platea Baja"]["Disponibilidad"]
                 }
             }
         }
@@ -135,8 +123,19 @@ def guardar_eventos(eventos):
     except Exception as e:
         print(f"Error al guardar el archivo JSON: {e}")
 
-# Cargamos los eventos al inicio para trabajar con ellos
-eventos = cargar_eventos()
+def nombre_sector(opcion_sector):
+    if opcion_sector == 1:
+        opcion_sector_diccionario = 'Campo'
+    elif opcion_sector == 2:
+        opcion_sector_diccionario = 'Platea Alta'
+    elif opcion_sector == 3:
+        opcion_sector_diccionario = 'Platea Baja'
+    else:
+        print("Opción no válida.")
+        return None
+
+    return opcion_sector_diccionario
+
 
 def comprobar_disponibilidad(artista, opcion_sector):
     """
@@ -145,16 +144,16 @@ def comprobar_disponibilidad(artista, opcion_sector):
     opcion_sector: 1=Campo, 2=Platea Alta, 3=Platea Baja
     """
     if opcion_sector in [1, 2, 3]:
-        # En tu estructura, sectores están en índices 2, 3 y 4 respectivamente
-        return eventos[artista-1][opcion_sector + 1][1] > 0
+        opcion_sector_diccionario = nombre_sector(opcion_sector)
+        return eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Disponibilidad"] > 0
     return False
 
 def seleccionar_artistas(eventos):
     """Muestra artistas y devuelve el índice elegido (1-based)."""
     print("Seleccione su artista:")
-    i = 0
-    while i < len(eventos):
-        print("%d. %s" % (i + 1, eventos[i][0]))
+    i = 1
+    while i < len(eventos) + 1:
+        print(f"{i}: {eventos[str(i)]['Artista']}")
         i += 1
     opcion_elegida = int(input("Ingrese el número del evento: "))
     while opcion_elegida < 1 or opcion_elegida > len(eventos):
@@ -164,12 +163,13 @@ def seleccionar_artistas(eventos):
 
 def ver_fechas_del_artista(artista):
     """Devuelve la lista de fechas disponibles para un artista."""
-    fechas = []
-    i = 0
-    while i < len(eventos[artista - 1][1]):
-        fechas.append(eventos[artista - 1][1][i])
+    i = 1
+    print(f"Fechas disponibles para {eventos[str(artista)]['Artista']}:")
+    for fecha in eventos[str(artista)]["Fechas"]:
+        print(f"{i}: {fecha}")
         i += 1
-    return fechas
+    
+    return eventos[str(artista)]["Fechas"]
 
 def seleccionar_sector(artista):
     """
@@ -187,16 +187,17 @@ def seleccionar_sector(artista):
 
     if comprobar_disponibilidad(artista, opcion_sector):
         print("El sector tiene disponibilidad.")
-        print("Disponibilidad:", eventos[artista - 1][opcion_sector + 1][1], "entradas disponibles")
+        opcion_sector_diccionario = nombre_sector(opcion_sector)
+        print("Disponibilidad:", eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Disponibilidad"], "entradas disponibles")
         if opcion_sector == 1:
-            print("Precio Campo:", eventos[artista - 1][2][0])
-            return 2
+            print("Precio Campo:", eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"])
+            return 1
         elif opcion_sector == 2:
-            print("Precio Platea Alta:", eventos[artista - 1][3][0])
-            return 3
+            print("Precio Platea Alta:", eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"])
+            return 2
         elif opcion_sector == 3:
-            print("Precio Platea Baja:", eventos[artista - 1][4][0])
-            return 4
+            print("Precio Platea Baja:",  eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"])
+            return 3
     else:
         print("El sector no tiene disponibilidad.")
         return False
@@ -214,26 +215,44 @@ def modificar_precio():
         print("El precio debe ser un número positivo.")
         nuevo_precio = int(input("Ingrese el nuevo precio: "))
     if sector == 2:
-        eventos[artista - 1][2][0] = nuevo_precio
+        eventos[str(artista)]['Sectores']['Campo']['Precio'] = nuevo_precio
         print("Precio Campo actualizado a:", nuevo_precio)
     elif sector == 3:
-        eventos[artista - 1][3][0] = nuevo_precio
+        eventos[str(artista)]['Sectores']['Platea Alta']['Precio'] = nuevo_precio
         print("Precio Platea Alta actualizado a:", nuevo_precio)
     elif sector == 4:
-        eventos[artista - 1][4][0] = nuevo_precio
+        eventos[str(artista)]['Sectores']['Platea Baja']['Precio'] = nuevo_precio
         print("Precio Platea Baja actualizado a:", nuevo_precio)
     guardar_eventos(eventos)
 
 def agregar_artistas(nombre, fechas, disp_campo, precio_campo, disp_platea_alta, precio_platea_alta, disp_platea_baja, precio_platea_baja):
     """Agrega un artista nuevo y guarda en el JSON."""
-    nuevo_artista = [
-        nombre,
-        fechas,
-        [precio_campo, disp_campo],
-        [precio_platea_alta, disp_platea_alta],
-        [precio_platea_baja, disp_platea_baja]
-    ]
-    eventos.append(nuevo_artista)
+    nuevo_artista = {
+		'Artista': nombre,
+            'Fechas': fechas,
+			'Sectores': {
+				'Campo': {
+					'Precio': precio_campo,
+					'Disponibilidad': disp_campo
+				},
+				'Platea Alta': {
+					'Precio': precio_platea_alta,
+					'Disponibilidad': disp_platea_alta
+				},
+				'Platea Baja': {
+					'Precio': precio_platea_baja,
+					'Disponibilidad': disp_platea_baja
+				}
+			}
+	}
+	# Obtener el último índice de los artistas en el diccionario
+    if eventos:
+        ultimo_indice = max(map(int, eventos.keys()))
+    else:
+        ultimo_indice = 0
+
+    # Agregar el nuevo artista con el siguiente índice
+    eventos[str(ultimo_indice + 1)] = nuevo_artista
     guardar_eventos(eventos)
     print("Artista agregado con éxito.")
 
@@ -251,13 +270,13 @@ def modificar_disponibilidad():
         print("La disponibilidad no puede ser negativa.")
         nueva_disponibilidad = int(input("Ingrese la nueva disponibilidad: "))
     if sector == 1:
-        eventos[artista - 1][2][1] = nueva_disponibilidad
+        eventos[str(artista)]['Sectores']['Campo']['Disponibilidad'] = nueva_disponibilidad
         print("Disponibilidad Campo actualizada a:", nueva_disponibilidad)
     elif sector == 2:
-        eventos[artista - 1][3][1] = nueva_disponibilidad
+        eventos[str(artista)]['Sectores']['Platea Alta']['Disponibilidad'] = nueva_disponibilidad
         print("Disponibilidad Platea Alta actualizada a:", nueva_disponibilidad)
     elif sector == 3:
-        eventos[artista - 1][4][1] = nueva_disponibilidad
+        eventos[str(artista)]['Sectores']['Platea Baja']['Disponibilidad'] = nueva_disponibilidad
         print("Disponibilidad Platea Baja actualizada a:", nueva_disponibilidad)
     guardar_eventos(eventos)
     
@@ -265,11 +284,13 @@ def bajar_fecha():
     """Bajar una fecha de un artista y guarda los cambios."""
     print("---------------------------")
     artista = seleccionar_artistas(eventos)
-    print(f"Fechas disponibles: {eventos[artista - 1][1]}")
+    print("Fechas disponibles:")
+    for  i in range(1, len(eventos[str(artista)]['Fechas']) + 1):
+        print(f"{i}: {eventos[str(artista)]['Fechas'][i - 1]}")
     fecha = input("Ingrese la fecha a bajar: ")
-    while fecha not in eventos[artista - 1][1]:
+    while fecha not in eventos[str(artista)]["Fechas"]:
         print("Fecha no encontrada.")
-    eventos[artista - 1][1].remove(fecha)
+    eventos[str(artista)]["Fechas"].remove(fecha)
     guardar_eventos(eventos)
     print("Fecha eliminada con éxito.")
 
@@ -281,7 +302,7 @@ def bajar_sector():
     if not sector:
         print("No hay disponibilidad en el sector seleccionado para bajar.")
         return
-    eventos[artista - 1][sector][1] = 0
+    eventos[str(artista)]['Sectores'][nombre_sector(sector)]['Disponibilidad'] = 0
     guardar_eventos(eventos)
     print("Sector eliminado con éxito.")
 
@@ -290,21 +311,23 @@ def agregar_fecha():
     print("---------------------------")
     artista = seleccionar_artistas(eventos)
     fecha = input("Ingrese la fecha a agregar: ")
-    eventos[artista - 1][1].append(fecha)
+    while fecha in eventos[str(artista)]["Fechas"] or fecha == "" or not es_fecha_valida(fecha):
+        print("Fecha ya existe o invalida. Ingrese una fecha diferente.")
+        fecha = input("Ingrese la fecha a agregar: ")
+    eventos[str(artista)]["Fechas"].append(fecha)
     guardar_eventos(eventos)
     
 
-def ver_entradas_disponibles(opcion_fecha):
+def ver_entradas_disponibles(opcion_fecha, artista):
     """Muestra las entradas disponibles para una fecha específica."""
     print("Entradas disponibles para la fecha:", opcion_fecha)
     print("---------------------------")
-    for evento in eventos:
-    	if opcion_fecha in evento[1]:  # Verifica si la fecha está en las fechas del artista
-            print("Artista:", evento[0])
-            print("Campo:", evento[2][1], "entradas disponibles")
-            print("Platea Alta:", evento[3][1], "entradas disponibles")
-            print("Platea Baja:", evento[4][1], "entradas disponibles")
-            print("---------------------------")
+    if opcion_fecha in eventos[str(artista)]['Fechas']:  # Verifica si la fecha está en las fechas del artista
+        print("Artista:", eventos[str(artista)]['Artista'])
+        print("Campo:", eventos[str(artista)]['Sectores']['Campo']['Disponibilidad'], "entradas disponibles")
+        print("Platea Alta:", eventos[str(artista)]['Sectores']['Platea Alta']['Disponibilidad'], "entradas disponibles")
+        print("Platea Baja:", eventos[str(artista)]['Sectores']['Platea Baja']['Disponibilidad'], "entradas disponibles")
+        print("---------------------------")
 	
 
 def validar_opcion_menu(opciones_validas):
@@ -320,14 +343,14 @@ def procesar_opcion_usuario(opcion):
 	if opcion == "1":
 		procesar_opcion_ver_artistas()
 	elif opcion == "2":
-		filtrar_artistas_por_precio()
+		crear_asientos()
 	elif opcion == "9":
 		ingresar_administrador()
 
 def procesar_opcion_ver_artistas():
 	"""Procesa la opción de ver artistas y sus subopciones."""
 	artista = int(seleccionar_artistas(eventos))
-	print("Artista elegido: ", eventos[artista - 1][0])
+	print("Artista elegido: ", eventos[str(artista)]["Artista"])
 	print("---------------------------")
 	print("¿Qué desea hacer?")
 	print("---------------------------")
@@ -350,60 +373,33 @@ def proceder_con_compra(artista):
 		print("Sector sin entradas disponibles.")
 		sector = seleccionar_sector(artista)
 	cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	while cantidad_de_entradas > eventos[artista - 1][sector][1] or cantidad_de_entradas <= 0:
+	while cantidad_de_entradas >= 6:
+		print("No puede comprar más de 5 entradas por transacción.")
+		cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+	opcion_sector_diccionario = nombre_sector(sector )
+	while cantidad_de_entradas > eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Disponibilidad"] or cantidad_de_entradas <= 0:
 		print("Cantidad no válida. Verifique la disponibilidad o ingrese un número positivo.")
 		cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	total = cantidad_de_entradas * eventos[artista - 1][sector][0]
+	total = cantidad_de_entradas *  eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"]
 	print(f"Total a pagar: {total}")
 	print("Entradas compradas con éxito. ¡Gracias por su compra!")
 
 def mostrar_fechas_disponibles(artista):
 	"""Muestra las fechas disponibles para un artista."""
 	fechas = ver_fechas_del_artista(artista)
-	print("Fechas disponibles:")
-	for fecha in fechas:
-		print("-", fecha)
+     
+	return fechas
 
 def ver_entradas_disponibles_por_fecha(artista):
 	"""Muestra las entradas disponibles para una fecha específica."""
 	print("Ver entradas disponibles")
 	print("---------------------------")
 	fechas_disponibles = ver_fechas_del_artista(artista)
-	for fecha in fechas_disponibles:
-		print(fecha)
 	opcion_fecha = input("Ingrese la fecha: ")
 	while opcion_fecha not in fechas_disponibles:
 		print("Fecha no válida.")
 		opcion_fecha = input("Ingrese la fecha: ")
-	ver_entradas_disponibles(opcion_fecha)
-
-def filtrar_artistas_por_precio():
-	"""Permite filtrar artistas por precio y sector."""
-	print("Filtrar artistas por precio")
-	print("---------------------------")
-	opcion_de_filtro = input("¿Desea filtrar por mayor o menor precio? (mayor/menor): ")
-	while opcion_de_filtro not in ["mayor", "menor"]:
-		print("Opción no válida.")
-		opcion_de_filtro = input("¿Desea filtrar por mayor o menor precio? (mayor/menor): ")
-	precio = int(input("Ingrese el precio: "))
-	while precio <= 0:
-		print("El precio debe ser un número positivo.")
-		precio = int(input("Ingrese el precio: "))
-	tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
-	while tipo_de_sector not in [1, 2, 3]:
-		print("Opción no válida.")
-		tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
-	
-	if opcion_de_filtro == "mayor":
-		artistas_filtrados = [artista for artista in eventos if artista[tipo_de_sector + 1][0] > precio]
-	else:
-		artistas_filtrados = [artista for artista in eventos if artista[tipo_de_sector + 1][0] < precio]
-	
-	if not artistas_filtrados:
-		print(f"No hay artistas con precios {opcion_de_filtro} a {precio}.")
-	else:
-		for artista in artistas_filtrados:
-			print(f"Artista: {artista[0]}, Precio: {artista[tipo_de_sector + 1][0]}")
+	ver_entradas_disponibles(opcion_fecha, artista)
 
 def ingresar_administrador():
 	"""Permite el ingreso al menú de administrador."""
@@ -535,10 +531,9 @@ def mostrar_usuarios():
         print(f"{'-'*15}{'-'*30}{'-'*20}")
         linea = archivo.readline()
         while linea:
-            linea = linea.strip()  # Quitar salto de línea final
-            if linea:  # Solo procesar si no está vacía
+            linea = linea.strip() 
+            if linea:
                 dni, nombre_apellido, eventos = linea.split(';')
-                eventos = eventos[:-2]
                 print(f"{dni:<15}{nombre_apellido:<30}{eventos:<20}")
             else:
                 print("Línea mal formada:", linea)
@@ -561,35 +556,97 @@ def opcion_de_ingreso():
             if not validacion:	
                 print("DNI no encontrado. Por favor, ingrese un DNI válido.")
 
+def crear_asientos():
+    # Cargar datos del archivo JSON
+    with open('Eventos.json', 'r', encoding='utf-8') as archivo:
+        eventos = json.load(archivo)
+    
+    # Mostrar lista de artistas disponibles
+    print("\nArtistas disponibles:")
+    artistas = []
+    for id_evento, datos in eventos.items():
+        if datos["Artista"] not in artistas:
+            artistas.append(datos["Artista"])
+            print(f"{len(artistas)}. {datos['Artista']}")
+    
+    # Selección del artista
+    while True:
+        try:
+            opcion_artista = int(input("\nSeleccione el número del artista: ")) - 1
+            if 0 <= opcion_artista < len(artistas):
+                artista_seleccionado = artistas[opcion_artista]
+                break
+            else:
+                print("Opción inválida. Por favor, seleccione un número válido.")
+        except ValueError:
+            print("Por favor, ingrese un número válido.")
+    
+    # Mostrar fechas disponibles para el artista seleccionado
+    print(f"\nFechas disponibles para {artista_seleccionado}:")
+    fechas_disponibles = []
+    for id_evento, datos in eventos.items():
+        if datos["Artista"] == artista_seleccionado:
+            for fecha in datos["Fechas"]:
+                if fecha not in fechas_disponibles:
+                    fechas_disponibles.append(fecha)
+                    print(f"{len(fechas_disponibles)}. {fecha}")
+    
+    # Selección de la fecha
+    while True:
+        try:
+            opcion_fecha = int(input("\nSeleccione el número de la fecha: ")) - 1
+            if 0 <= opcion_fecha < len(fechas_disponibles):
+                fecha_seleccionada = fechas_disponibles[opcion_fecha]
+                break
+            else:
+                print("Opción inválida. Por favor, seleccione un número válido.")
+        except ValueError:
+            print("Por favor, ingrese un número válido.")
+
+    print(f"\nAsientos disponibles para {artista_seleccionado} - {fecha_seleccionada}:")
+
+    # Crear matrices con valores aleatorios 0 (disponible) y 1 (ocupado)
+    platea_alta = [[random.choice([0, 1]) for _ in range(10)] for _ in range(10)]
+    platea_baja = [[random.choice([0, 1]) for _ in range(10)] for _ in range(10)]
+
+    # Mostrar disponibilidad
+    print("\nPlatea Alta:")
+    for fila in platea_alta:
+        print(fila)
+    print("\nPlatea Baja:")
+    for fila in platea_baja:
+        print(fila)
+    
+    return platea_alta, platea_baja
 
 #PROGRAMA PRINCIPAL
 def main():
-	print("---------------------------")
-	print("BIENVENIDO AL SISTEMA     ")
-	print("---------------------------")
-	print("[1] Crear usuario")
-	print("[2] Ingresar con DNI")
-	print("---------------------------")
-	
-	opcion_de_ingreso()
-		
-            
-	print()
-	print("---------------------------")
-	print("MENÚ DEL SISTEMA           ")
-	print("---------------------------")
-	print("[1] Ver artistas")
-	print("[2] Filtrar artistas por precio")
-	print("[9] Ingresar Administrador")
-	print("---------------------------")
-	print("[0] Salir del programa")
-	print()
-
-
 	opcion = ""
 	while opcion != "0":
-		opcion = validar_opcion_menu(["0", "1", "2", "9"])
+		print()
+		print("---------------------------")
+		print("MENÚ DEL SISTEMA           ")
+		print("---------------------------")
+		print("[1] Ver artistas")
+		print("[2] Crear asientos")
+		print("[9] Ingresar Administrador")
+		print("---------------------------")
+		print("[0] Salir del programa")
+		print()
+		
+		opcion = validar_opcion_menu(["0", "1", "2" ,"9"])
 		procesar_opcion_usuario(opcion)
 	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
 
+def bienvenida():
+    print("---------------------------")
+    print("BIENVENIDO AL SISTEMA     ")
+    print("---------------------------")
+    print("[1] Crear usuario")
+    print("[2] Ingresar con DNI")
+    print("---------------------------")
+	
+    opcion_de_ingreso()
+    
+bienvenida()
 main()
