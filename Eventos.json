@@ -8,19 +8,18 @@
         ],
         "Sectores": {
             "Campo": {
-                "Nombre": "Campo",
                 "Precio": 85000,
                 "Disponibilidad": 1000
             },
             "Platea Alta": {
-                "Nombre": "Platea Alta",
                 "Precio": 65000,
-                "Disponibilidad": 496
+                "Disponibilidad": 50
+                
             },
             "Platea Baja": {
-                "Nombre": "Platea Baja",
                 "Precio": 75000,
-                "Disponibilidad": 750
+                "Disponibilidad": 50  
+                
             }
         }
     },
@@ -32,42 +31,42 @@
         ],
         "Sectores": {
             "Campo": {
-                "Nombre": "Campo",
-                "Precio": 75000,
+                "Precio": 3000,
                 "Disponibilidad": 1196
             },
             "Platea Alta": {
-                "Nombre": "Platea Alta",
                 "Precio": 55000,
-                "Disponibilidad": 600
+                "Disponibilidad":50
+               
             },
             "Platea Baja": {
-                "Nombre": "Platea Baja",
                 "Precio": 65000,
-                "Disponibilidad": 800
+                "Disponibilidad":50
+              
+                
             }
         }
     },
     "3": {
         "Artista": "Airbag",
         "Fechas": [
-            "28/04/25"
+            "28/04/25",
+            "31/02/25",
+            "20/07/25"
         ],
         "Sectores": {
             "Campo": {
-                "Nombre": "Campo",
                 "Precio": 2000,
                 "Disponibilidad": 200
             },
             "Platea Alta": {
-                "Nombre": "Platea Alta",
                 "Precio": 4000,
-                "Disponibilidad": 450
+                "Disponibilidad": 50
+                
             },
             "Platea Baja": {
-                "Nombre": "Platea Baja",
                 "Precio": 1500,
-                "Disponibilidad": 200
+                "Disponibilidad": 3000
             }
         }
     }
