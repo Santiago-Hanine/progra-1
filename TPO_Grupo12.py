@@ -3,17 +3,16 @@ import random
 
 def ver_mis_shows():
     try:
-        dni = input("Ingrese su DNI: ")
         archivo = open("usuarios.txt", "r")
         linea = archivo.readline()
         encontrado = False
-        
+
         while linea and not encontrado:
             if linea:  # Solo procesar si no está vacía
                 datos = linea.split(';')
-                if datos[0] == dni:
+                if datos[0] == dni_usuario:
                     encontrado = True
-                    print(f"\nDNI: {dni}")
+                    print(f"\nDNI: {dni_usuario}")
                     print(f"Nombre: {datos[1]}")
                     print("Shows comprados y cantidad de entradas:")
                     shows = datos[2].strip('-').split(',')
@@ -21,14 +20,14 @@ def ver_mis_shows():
                         if show:  # Solo mostrar shows no vacíos
                             print(f"- {show}")
             linea = archivo.readline()
-            
+
         if not encontrado:
             print("No se encontraron shows para este DNI.")
-            
-        archivo.close()
-        
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
+    
+    finally:
+        archivo.close()
 
 
 def crear_asientos():
