@@ -539,35 +539,6 @@ def ver_entradas_disponibles_por_fecha(artista):
 		opcion_fecha = input("Ingrese la fecha: ")
 	ver_entradas_disponibles(opcion_fecha, artista)
 
-def filtrar_artistas_por_precio():
-	"""Permite filtrar artistas por precio y sector."""
-	print("Filtrar artistas por precio")
-	print("---------------------------")
-	opcion_de_filtro = input("¿Desea filtrar por mayor o menor precio? (mayor/menor): ")
-	while opcion_de_filtro not in ["mayor", "menor"]:
-		print("Opción no válida.")
-		opcion_de_filtro = input("¿Desea filtrar por mayor o menor precio? (mayor/menor): ")
-	precio = int(input("Ingrese el precio: "))
-	while precio <= 0:
-		print("El precio debe ser un número positivo.")
-		precio = int(input("Ingrese el precio: "))
-	tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
-	while tipo_de_sector not in [1, 2, 3]:
-		print("Opción no válida.")
-		tipo_de_sector = int(input("Ingrese el tipo de sector: campo(1), platea alta(2), platea baja(3): "))
-	
-	if opcion_de_filtro == "mayor":
-		artistas_filtrados = [artista for artista in eventos if artista[tipo_de_sector + 1][0] > precio]
-	else:
-		artistas_filtrados = [artista for artista in eventos if artista[tipo_de_sector + 1][0] < precio]
-	
-	if not artistas_filtrados:
-		print(f"No hay artistas con precios {opcion_de_filtro} a {precio}.")
-	else:
-		for artista in artistas_filtrados:
-			print(f"Artista: {artista[0]}, Precio: {artista[tipo_de_sector + 1][0]}")
-	ver_entradas_disponibles(opcion_fecha, artista)
-
 def ingresar_administrador():
 	"""Permite el ingreso al menú de administrador."""
 	print("Ingreso de administrador")
