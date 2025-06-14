@@ -93,11 +93,6 @@ def crear_asientos():
     
     return platea_alta, platea_baja
 
-
-
-import json, random
-
-
 def cargar_eventos():
     """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
     try:
