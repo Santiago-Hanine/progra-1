@@ -539,8 +539,6 @@ def ver_entradas_disponibles_por_fecha(artista):
 		print("Fecha no válida.")
 		opcion_fecha = input("Ingrese la fecha: ")
 	ver_entradas_disponibles(opcion_fecha, artista)
- 
- 
 
 def filtrar_artistas_por_precio():
 	"""Permite filtrar artistas por precio y sector."""
@@ -699,20 +697,27 @@ def mostrar_usuarios():
         print('Usuarios Registrados: ')
         print(f"{'DNI':<15}{'Nombre y Apellido':<30}{'Eventos':<20}")
         print(f"{'-'*15}{'-'*30}{'-'*20}")
-        linea = archivo.readline()
-        while linea:
-            linea = linea.strip() 
-            if linea:
-                dni, nombre_apellido, eventos = linea.split(';')
-                print(f"{dni:<15}{nombre_apellido:<30}{eventos:<20}")
-            else:
-                print("Línea mal formada:", linea)
-            linea = archivo.readline()
 
-        archivo.close()
+        def procesar_lineas(archivo):
+            linea = archivo.readline()
+            if not linea:
+                return  # Fin del archivo
+
+            linea = linea.strip()
+            if linea:
+                try:
+                    dni, nombre_apellido, eventos = linea.split(';')
+                    print(f"{dni:<15}{nombre_apellido:<30}{eventos:<20}")
+                except ValueError:
+                    print("Línea mal formada:", linea)
+            procesar_lineas(archivo)
+
+        procesar_lineas(archivo)
 
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
+    finally:
+        archivo.close()
         
 def opcion_de_ingreso():
     opcion_inicio = validar_opcion_menu(["1", "2"])
@@ -793,33 +798,6 @@ def crear_asientos():
 
 #PROGRAMA PRINCIPAL
 def main():
-	print("---------------------------")
-	print("BIENVENIDO AL SISTEMA     ")
-	print("---------------------------")
-	print("[1] Crear usuario")
-	print("[2] Ingresar con DNI")
-	print("---------------------------")
-	
-	opcion_de_ingreso()
-		
-            
-	print()
-	print("---------------------------")
-	print("MENÚ DEL SISTEMA           ")
-	print("---------------------------")
-	print("[1] Ver artistas")
-	print("[2] Filtrar artistas por precio")
-	print("[3] ver disponibilidad de asientos")
-	print("[4] ver mis shows")
-	print("[9] Ingresar Administrador")
-	print("---------------------------")
-	print("[0] Salir del programa")
-	print()
-
-
-	opcion = ""
-	while opcion != "0":
-		opcion = validar_opcion_menu(["0", "1", "2", "3", "4", "9"])
 	opcion = ""
 	while opcion != "0":
 		print()
@@ -827,8 +805,9 @@ def main():
 		print("MENÚ DEL SISTEMA           ")
 		print("---------------------------")
 		print("[1] Ver artistas")
-		print("[2] Crear asientos")
-		print("[3] Mis datos")
+		print("[2] Filtrar artistas por precio")
+		print("[3] Ver disponibilidad de asientos")
+		print("[4] Ver mis shows")
 		print("[9] Ingresar Administrador")
 		print("---------------------------")
 		print("[0] Salir del programa")
