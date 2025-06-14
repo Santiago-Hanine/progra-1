@@ -1,4 +1,72 @@
 import json
+import random
+
+
+def crear_asientos():
+    # Cargar datos del archivo JSON
+    with open('Eventos.json', 'r', encoding='utf-8') as archivo:
+        eventos = json.load(archivo)
+    
+    # Mostrar lista de artistas disponibles
+    print("\nArtistas disponibles:")
+    artistas = []
+    for id_evento, datos in eventos.items():
+        if datos["Artista"] not in artistas:
+            artistas.append(datos["Artista"])
+            print(f"{len(artistas)}. {datos['Artista']}")
+    
+    # Selección del artista
+    while True:
+        try:
+            opcion_artista = int(input("\nSeleccione el número del artista: ")) - 1
+            if 0 <= opcion_artista < len(artistas):
+                artista_seleccionado = artistas[opcion_artista]
+                break
+            else:
+                print("Opción inválida. Por favor, seleccione un número válido.")
+        except ValueError:
+            print("Por favor, ingrese un número válido.")
+    
+    # Mostrar fechas disponibles para el artista seleccionado
+    print(f"\nFechas disponibles para {artista_seleccionado}:")
+    fechas_disponibles = []
+    for id_evento, datos in eventos.items():
+        if datos["Artista"] == artista_seleccionado:
+            for fecha in datos["Fechas"]:
+                if fecha not in fechas_disponibles:
+                    fechas_disponibles.append(fecha)
+                    print(f"{len(fechas_disponibles)}. {fecha}")
+    
+    # Selección de la fecha
+    while True:
+        try:
+            opcion_fecha = int(input("\nSeleccione el número de la fecha: ")) - 1
+            if 0 <= opcion_fecha < len(fechas_disponibles):
+                fecha_seleccionada = fechas_disponibles[opcion_fecha]
+                break
+            else:
+                print("Opción inválida. Por favor, seleccione un número válido.")
+        except ValueError:
+            print("Por favor, ingrese un número válido.")
+
+    print(f"\nAsientos disponibles para {artista_seleccionado} - {fecha_seleccionada}:")
+
+    # Crear matrices con valores aleatorios 0 (disponible) y 1 (ocupado)
+    platea_alta = [[random.choice([0, 1]) for _ in range(10)] for _ in range(10)]
+    platea_baja = [[random.choice([0, 1]) for _ in range(10)] for _ in range(10)]
+
+    # Mostrar disponibilidad
+    print("\nPlatea Alta:")
+    for fila in platea_alta:
+        print(fila)
+    print("\nPlatea Baja:")
+    for fila in platea_baja:
+        print(fila)
+    
+    return platea_alta, platea_baja
+
+
+
 
 def creacion_usuario():
     nombre = input("Ingrese su nombre: ")
@@ -72,6 +140,9 @@ def ingreso_usuario():
     finally:
         archivo.close()
 
+   
+
+            
 
 def cargar_eventos():
     """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
@@ -321,6 +392,8 @@ def procesar_opcion_usuario(opcion):
 		procesar_opcion_ver_artistas()
 	elif opcion == "2":
 		filtrar_artistas_por_precio()
+	elif opcion == "3":
+		crear_asientos()
 	elif opcion == "9":
 		ingresar_administrador()
 
@@ -376,6 +449,11 @@ def ver_entradas_disponibles_por_fecha(artista):
 		print("Fecha no válida.")
 		opcion_fecha = input("Ingrese la fecha: ")
 	ver_entradas_disponibles(opcion_fecha)
+ 
+
+
+
+ 
 
 def filtrar_artistas_por_precio():
 	"""Permite filtrar artistas por precio y sector."""
@@ -580,6 +658,7 @@ def main():
 	print("---------------------------")
 	print("[1] Ver artistas")
 	print("[2] Filtrar artistas por precio")
+	print("[3] ver disponibilidad de asientos")
 	print("[9] Ingresar Administrador")
 	print("---------------------------")
 	print("[0] Salir del programa")
@@ -588,7 +667,7 @@ def main():
 
 	opcion = ""
 	while opcion != "0":
-		opcion = validar_opcion_menu(["0", "1", "2", "9"])
+		opcion = validar_opcion_menu(["0", "1", "2", "3", "9"])
 		procesar_opcion_usuario(opcion)
 	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
 
