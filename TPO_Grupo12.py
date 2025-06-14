@@ -538,11 +538,8 @@ def ver_entradas_disponibles_por_fecha(artista):
 	while opcion_fecha not in fechas_disponibles:
 		print("Fecha no válida.")
 		opcion_fecha = input("Ingrese la fecha: ")
-	ver_entradas_disponibles(opcion_fecha)
+	ver_entradas_disponibles(opcion_fecha, artista)
  
-
-
-
  
 
 def filtrar_artistas_por_precio():
