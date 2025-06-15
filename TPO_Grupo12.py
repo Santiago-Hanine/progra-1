@@ -3,26 +3,24 @@ import random
 
 def ver_mis_shows():
     try:
-        archivo = open("usuarios.txt", "r")
-        linea = archivo.readline()
-        encontrado = False
+        with open("usuarios.txt", "r") as archivo:
+            encontrado = False
+            for linea in archivo:
+                if linea.strip():  # Solo procesar si no está vacía
+                    datos = linea.strip().split(';')
+                    if datos[0] == dni_usuario:
+                        encontrado = True
+                        print(f"\nDNI: {dni_usuario}")
+                        print(f"Nombre: {datos[1]}")
+                        print("Shows comprados y cantidad de entradas:")
+                        shows = datos[2].strip('').split(',')
+                        for show in shows:
+                            if show:  # Solo mostrar shows no vacíos
+                                print(f"- {show}")
+                        break  # Salir del bucle una vez encontrado
 
-        while linea and not encontrado:
-            if linea:  # Solo procesar si no está vacía
-                datos = linea.split(';')
-                if datos[0] == dni_usuario:
-                    encontrado = True
-                    print(f"\nDNI: {dni_usuario}")
-                    print(f"Nombre: {datos[1]}")
-                    print("Shows comprados y cantidad de entradas:")
-                    shows = datos[2].strip('-').split(',')
-                    for show in shows:
-                        if show:  # Solo mostrar shows no vacíos
-                            print(f"- {show}")
-            linea = archivo.readline()
-
-        if not encontrado:
-            print("No se encontraron shows para este DNI.")
+            if not encontrado:
+                print("No se encontraron shows para este DNI.")
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
     
@@ -418,12 +416,22 @@ def bajar_fecha():
     print("---------------------------")
     artista = seleccionar_artistas(eventos)
     print("Fechas disponibles:")
-    for  i in range(1, len(eventos[str(artista)]['Fechas']) + 1):
-        print(f"{i}: {eventos[str(artista)]['Fechas'][i - 1]}")
+    for i in range(1, len(eventos[str(artista)]['Fechas']) + 1):
+        print(f"{i}: {eventos[str(artista)]['Fechas'][i-1][0]}")  # Accedemos al primer elemento de la tupla
     fecha = input("Ingrese la fecha a bajar: ")
-    while fecha not in eventos[str(artista)]["Fechas"]:
+    
+    # Buscar la fecha en las tuplas
+    fecha_encontrada = False
+    for tupla_fecha in eventos[str(artista)]["Fechas"]:
+        if tupla_fecha[0] == fecha:
+            eventos[str(artista)]["Fechas"].remove(tupla_fecha)
+            fecha_encontrada = True
+            break
+    
+    if not fecha_encontrada:
         print("Fecha no encontrada.")
-    eventos[str(artista)]["Fechas"].remove(fecha)
+        return
+        
     guardar_eventos(eventos)
     print("Fecha eliminada con éxito.")
 
@@ -447,9 +455,21 @@ def agregar_fecha():
     while fecha in eventos[str(artista)]["Fechas"] or fecha == "" or not es_fecha_valida(fecha):
         print("Fecha ya existe o invalida. Ingrese una fecha diferente.")
         fecha = input("Ingrese la fecha a agregar: ")
-    eventos[str(artista)]["Fechas"].append(fecha)
-    guardar_eventos(eventos)
     
+    try:
+        # Crear nueva lista con la fecha agregada y actualizar el JSON
+        nuevas_fechas = eventos[str(artista)]["Fechas"] + [[fecha]]
+        eventos[str(artista)]["Fechas"] = nuevas_fechas
+        
+        # Guardar cambios en el archivo JSON
+        with open('Eventos.json', 'w', encoding='utf-8') as archivo:
+            json.dump(eventos, archivo, indent=4)
+        
+        print("Fecha agregada con éxito.")
+    except Exception as e:
+        print(f"Error al agregar la fecha: {e}")
+    finally:
+        archivo.close()
 
 def ver_entradas_disponibles(opcion_fecha, artista):
     """Muestra las entradas disponibles para una fecha específica."""
@@ -479,7 +499,6 @@ def procesar_opcion_usuario(opcion):
 		crear_asientos()
 	elif opcion == "4":
 		ver_mis_shows()
-		crear_asientos()
 	elif opcion == "3":
 		ver_dni()
 	elif opcion == "9":
@@ -783,7 +802,7 @@ def main():
 		print("[0] Salir del programa")
 		print()
 		
-		opcion = validar_opcion_menu(["0", "1", "2", "3" ,"9"])
+		opcion = validar_opcion_menu(["0", "1", "2", "3" ,"4" ,"9"])
 		procesar_opcion_usuario(opcion)
 	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
 
