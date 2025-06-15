@@ -4,25 +4,23 @@ import random
 def ver_mis_shows():
     try:
         archivo = open("usuarios.txt", "r")
-        linea = archivo.readline()
         encontrado = False
-
-        while linea and not encontrado:
-            if linea:  # Solo procesar si no está vacía
-                datos = linea.split(';')
+        for linea in archivo:
+            if linea.strip():  # Solo procesar si no está vacía
+                datos = linea.strip().split(';')
                 if datos[0] == dni_usuario:
                     encontrado = True
                     print(f"\nDNI: {dni_usuario}")
                     print(f"Nombre: {datos[1]}")
                     print("Shows comprados y cantidad de entradas:")
-                    shows = datos[2].strip('-').split(',')
+                    shows = datos[2].strip('').split(',')
                     for show in shows:
                         if show:  # Solo mostrar shows no vacíos
                             print(f"- {show}")
-            linea = archivo.readline()
+                    break  # Salir del bucle una vez encontrado
 
-        if not encontrado:
-            print("No se encontraron shows para este DNI.")
+            if not encontrado:
+                print("No se encontraron shows para este DNI.")
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
     
@@ -32,8 +30,17 @@ def ver_mis_shows():
 
 def crear_asientos():
     # Cargar datos del archivo JSON
-    with open('Eventos.json', 'r', encoding='utf-8') as archivo:
+    try:
+        archivo = open('Eventos.json', 'r', encoding='utf-8')
         eventos = json.load(archivo)
+    except FileNotFoundError:
+        print("El archivo Eventos.json no existe.")
+        return
+    except json.JSONDecodeError:
+        print("Error al leer el archivo JSON. Verifique el formato.")
+        return
+    finally:
+        archivo.close()
 
     # Mostrar lista de artistas disponibles
     print("\nArtistas disponibles:")
@@ -92,13 +99,12 @@ def crear_asientos():
         print(fila)
     
     return platea_alta, platea_baja
-
 def cargar_eventos():
     """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
     try:
         archivo = open('Eventos.json', 'rt', encoding='utf-8')
         eventos_json = json.load(archivo)
-        archivo.close()
+        
 
         return eventos_json;
 
@@ -108,6 +114,8 @@ def cargar_eventos():
     except json.JSONDecodeError:
         print("Error al leer JSON. Verifica el formato.")
         return []
+    finally:
+        archivo.close()
     
 # Cargamos los eventos al inicio para trabajar con ellos
 eventos = cargar_eventos()
@@ -169,24 +177,24 @@ def ingreso_usuario():
         while linea:
             linea = linea.strip()
             if linea:
-                dni, nombre_apellido,eventos = linea.split(';')
+                dni, nombre_apellido, eventos = linea.split(';')
                 if dni == input_dni:
                     print()
                     print()
                     print(f"Bienvenido {nombre_apellido}")
                     return True, input_dni
-            
             else:
                 print("Línea mal formada:", linea)
             linea = archivo.readline()
+        return False, input_dni  # DNI no encontrado
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
-        return
+        return False, ""
     finally:
-        archivo.close()
-
-   
-
+        try:
+            archivo.close()
+        except:
+            pass 
             
 
 def cargar_eventos():
@@ -194,7 +202,7 @@ def cargar_eventos():
     try:
         archivo = open('Eventos.json', 'rt', encoding='utf-8')
         eventos_json = json.load(archivo)
-        archivo.close()
+        
 
         lista_eventos = []
         i = 1
@@ -218,6 +226,8 @@ def cargar_eventos():
     except json.JSONDecodeError:
         print("Error al leer JSON. Verifica el formato.")
         return []
+    finally:
+        archivo.close()
 
 def guardar_eventos(eventos):
     """Guarda toda la lista de eventos en el archivo JSON con la estructura correcta."""
@@ -247,9 +257,10 @@ def guardar_eventos(eventos):
     try:
         archivo = open('Eventos.json', 'wt', encoding='utf-8')
         json.dump(data, archivo, indent=4, ensure_ascii=False)
-        archivo.close()
     except Exception as e:
         print(f"Error al guardar el archivo JSON: {e}")
+    finally:
+        archivo.close()
 
 def nombre_sector(opcion_sector):
     if opcion_sector == 1:
@@ -413,12 +424,22 @@ def bajar_fecha():
     print("---------------------------")
     artista = seleccionar_artistas(eventos)
     print("Fechas disponibles:")
-    for  i in range(1, len(eventos[str(artista)]['Fechas']) + 1):
-        print(f"{i}: {eventos[str(artista)]['Fechas'][i - 1]}")
+    for i in range(1, len(eventos[str(artista)]['Fechas']) + 1):
+        print(f"{i}: {eventos[str(artista)]['Fechas'][i-1][0]}")  # Accedemos al primer elemento de la tupla
     fecha = input("Ingrese la fecha a bajar: ")
-    while fecha not in eventos[str(artista)]["Fechas"]:
+    
+    # Buscar la fecha en las tuplas
+    fecha_encontrada = False
+    for tupla_fecha in eventos[str(artista)]["Fechas"]:
+        if tupla_fecha[0] == fecha:
+            eventos[str(artista)]["Fechas"].remove(tupla_fecha)
+            fecha_encontrada = True
+            break
+    
+    if not fecha_encontrada:
         print("Fecha no encontrada.")
-    eventos[str(artista)]["Fechas"].remove(fecha)
+        return
+        
     guardar_eventos(eventos)
     print("Fecha eliminada con éxito.")
 
@@ -442,9 +463,20 @@ def agregar_fecha():
     while fecha in eventos[str(artista)]["Fechas"] or fecha == "" or not es_fecha_valida(fecha):
         print("Fecha ya existe o invalida. Ingrese una fecha diferente.")
         fecha = input("Ingrese la fecha a agregar: ")
-    eventos[str(artista)]["Fechas"].append(fecha)
-    guardar_eventos(eventos)
     
+    try:
+        # Crear nueva lista con la fecha agregada y actualizar el JSON
+        nuevas_fechas = eventos[str(artista)]["Fechas"] + [[fecha]]
+        eventos[str(artista)]["Fechas"] = nuevas_fechas
+        
+        # Guardar cambios en el archivo JSON
+        archivo = open('Eventos.json', 'w', encoding='utf-8')
+        json.dump(eventos, archivo, indent=4)
+        print("Fecha agregada con éxito.")
+    except Exception as e:
+        print(f"Error al agregar la fecha: {e}")
+    finally:
+        archivo.close()
 
 def ver_entradas_disponibles(opcion_fecha, artista):
     """Muestra las entradas disponibles para una fecha específica."""
@@ -474,7 +506,6 @@ def procesar_opcion_usuario(opcion):
 		crear_asientos()
 	elif opcion == "4":
 		ver_mis_shows()
-		crear_asientos()
 	elif opcion == "3":
 		ver_dni()
 	elif opcion == "9":
@@ -500,22 +531,57 @@ def procesar_opcion_ver_artistas():
 		ver_entradas_disponibles_por_fecha(artista)
 
 def proceder_con_compra(artista):
-	"""Permite al usuario proceder con la compra de entradas."""
-	sector = seleccionar_sector(artista)
-	while not sector:
-		print("Sector sin entradas disponibles.")
-		sector = seleccionar_sector(artista)
-	cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	while cantidad_de_entradas >= 6:
-		print("No puede comprar más de 5 entradas por transacción.")
-		cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	opcion_sector_diccionario = nombre_sector(sector )
-	while cantidad_de_entradas > eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Disponibilidad"] or cantidad_de_entradas <= 0:
-		print("Cantidad no válida. Verifique la disponibilidad o ingrese un número positivo.")
-		cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	total = cantidad_de_entradas *  eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"]
-	print(f"Total a pagar: {total}")
-	print("Entradas compradas con éxito. ¡Gracias por su compra!")
+    """Permite al usuario proceder con la compra de entradas."""
+    sector = seleccionar_sector(artista)
+    while not sector:
+        print("Sector sin entradas disponibles.")
+        sector = seleccionar_sector(artista)
+    cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+    while cantidad_de_entradas >= 6:
+        print("No puede comprar más de 5 entradas por transacción.")
+        cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+    opcion_sector_diccionario = nombre_sector(sector)
+    while cantidad_de_entradas > eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Disponibilidad"] or cantidad_de_entradas <= 0:
+        print("Cantidad no válida. Verifique la disponibilidad o ingrese un número positivo.")
+        cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+
+    # Si el sector es platea, mostrar y seleccionar asientos
+    if "Platea" in opcion_sector_diccionario:
+        platea_alta, platea_baja = crear_asientos()
+        matriz = platea_alta if "Alta" in opcion_sector_diccionario else platea_baja
+        
+        print("\nAsientos disponibles (0 = disponible, 1 = ocupado):")
+        for i, fila in enumerate(matriz):
+            print(f"Fila {i+1}: {fila}")
+        
+        asientos_seleccionados = []
+        for i in range(cantidad_de_entradas):
+            while True:
+                try:
+                    print(f"\nSelección del asiento {i+1}:")
+                    fila = int(input("Ingrese el número de fila (1-10): ")) - 1
+                    columna = int(input("Ingrese el número de columna (1-10): ")) - 1
+                    
+                    if 0 <= fila < 10 and 0 <= columna < 10:
+                        if matriz[fila][columna] == 0:
+                            matriz[fila][columna] = 1
+                            asientos_seleccionados.append((fila+1, columna+1))
+                            print(f"Asiento {i+1} asignado: Fila {fila+1}, Columna {columna+1}")
+                            break
+                        else:
+                            print("Este asiento ya está ocupado. Por favor seleccione otro.")
+                    else:
+                        print("Posición inválida. Por favor seleccione una fila y columna entre 1 y 10.")
+                except ValueError:
+                    print("Por favor ingrese números válidos.")
+        
+        print("\nResumen de asientos seleccionados:")
+        for i, (fila, columna) in enumerate(asientos_seleccionados, 1):
+            print(f"Asiento {i}: Fila {fila}, Columna {columna}")
+
+    total = cantidad_de_entradas * eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"]
+    print(f"\nTotal a pagar: ${total}")
+    print("Entradas compradas con éxito. ¡Gracias por su compra!")
 
 def mostrar_fechas_disponibles(artista):
 	"""Muestra las fechas disponibles para un artista."""
@@ -683,17 +749,28 @@ def opcion_de_ingreso():
         creacion_usuario()
     else:
         validacion = False
-        dni = None
+        dni = ""
         while not validacion:
             validacion, dni = ingreso_usuario()
-            if not validacion:	
+            if validacion:
+                break
+            if not validacion and dni != "":	
                 print("DNI no encontrado. Por favor, ingrese un DNI válido.")
         return dni
 
 def crear_asientos():
-    # Cargar datos del archivo JSON
-    with open('Eventos.json', 'r', encoding='utf-8') as archivo:
+    """Crea asientos para un artista y guarda los cambios."""
+    try:
+        archivo = open('Eventos.json', 'r', encoding='utf-8')
         eventos = json.load(archivo)
+    except FileNotFoundError:
+        print("El archivo Eventos.json no existe.")
+        return
+    except json.JSONDecodeError:
+        print("Error al leer el archivo JSON. Verifique el formato.")
+        return
+    finally:
+        archivo.close()
     
     # Mostrar lista de artistas disponibles
     print("\nArtistas disponibles:")
@@ -714,6 +791,7 @@ def crear_asientos():
                 print("Opción inválida. Por favor, seleccione un número válido.")
         except ValueError:
             print("Por favor, ingrese un número válido.")
+        
     
     # Mostrar fechas disponibles para el artista seleccionado
     print(f"\nFechas disponibles para {artista_seleccionado}:")
@@ -770,7 +848,7 @@ def main():
 		print("[0] Salir del programa")
 		print()
 		
-		opcion = validar_opcion_menu(["0", "1", "2", "3" ,"9"])
+		opcion = validar_opcion_menu(["0", "1", "2", "3" ,"4" ,"9"])
 		procesar_opcion_usuario(opcion)
 	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
 
@@ -786,6 +864,7 @@ def bienvenida():
     print("---------------------------")
 	
     dni = opcion_de_ingreso()
+    
     return dni
     
 dni_usuario = bienvenida()
