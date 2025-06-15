@@ -3,7 +3,7 @@ import random
 
 def ver_mis_shows():
     try:
-        with open("usuarios.txt", "r") as archivo:
+        with open("usuarios.txt", 	"r") as archivo:
             encontrado = False
             for linea in archivo:
                 if linea.strip():  # Solo procesar si no está vacía
@@ -532,7 +532,9 @@ def proceder_con_compra(artista):
 	while cantidad_de_entradas > eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Disponibilidad"] or cantidad_de_entradas <= 0:
 		print("Cantidad no válida. Verifique la disponibilidad o ingrese un número positivo.")
 		cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	total = cantidad_de_entradas *  eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"]
+	total = (lambda cantidad, precio: cantidad * precio)(
+		cantidad_de_entradas, eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"]
+	)
 	print(f"Total a pagar: {total}")
 	print("Entradas compradas con éxito. ¡Gracias por su compra!")
 
