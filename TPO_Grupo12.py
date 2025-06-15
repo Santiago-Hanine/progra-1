@@ -157,7 +157,7 @@ def creacion_usuario():
         
     try: 
         archivo = open('usuarios.txt', 'a', encoding='utf-8')
-        archivo.write(dni + ';' + nombre + '\n')
+        archivo.write(dni + ';' + nombre + ';' + '' + '\n')
         print(f"Usuario {nombre} creado exitosamente.")
         print("Bienvenido", nombre)
     except IOError:
@@ -502,12 +502,8 @@ def procesar_opcion_usuario(opcion):
 	"""Procesa las opciones del usuario en el menú principal."""
 	if opcion == "1":
 		procesar_opcion_ver_artistas()
-	elif opcion == "3":
-		crear_asientos()
-	elif opcion == "4":
+	elif opcion == "2":
 		ver_mis_shows()
-	elif opcion == "3":
-		ver_dni()
 	elif opcion == "9":
 		ingresar_administrador()
 
@@ -840,15 +836,14 @@ def main():
 		print("MENÚ DEL SISTEMA           ")
 		print("---------------------------")
 		print("[1] Ver artistas")
-		print("[2] Filtrar artistas por precio")
-		print("[3] Ver disponibilidad de asientos")
-		print("[4] Ver mis shows")
+		print("[2] Ver disponibilidad de asientos")
+		print("[3] Ver mis shows")
 		print("[9] Ingresar Administrador")
 		print("---------------------------")
 		print("[0] Salir del programa")
 		print()
 		
-		opcion = validar_opcion_menu(["0", "1", "2", "3" ,"4" ,"9"])
+		opcion = validar_opcion_menu(["0", "1", "2", "9"])
 		procesar_opcion_usuario(opcion)
 	print("Gracias por usar el sistema de venta de entradas. ¡Hasta luego!")
 
