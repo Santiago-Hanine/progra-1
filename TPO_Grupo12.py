@@ -3,21 +3,21 @@ import random
 
 def ver_mis_shows():
     try:
-        with open("usuarios.txt", "r") as archivo:
-            encontrado = False
-            for linea in archivo:
-                if linea.strip():  # Solo procesar si no está vacía
-                    datos = linea.strip().split(';')
-                    if datos[0] == dni_usuario:
-                        encontrado = True
-                        print(f"\nDNI: {dni_usuario}")
-                        print(f"Nombre: {datos[1]}")
-                        print("Shows comprados y cantidad de entradas:")
-                        shows = datos[2].strip('').split(',')
-                        for show in shows:
-                            if show:  # Solo mostrar shows no vacíos
-                                print(f"- {show}")
-                        break  # Salir del bucle una vez encontrado
+        archivo = open("usuarios.txt", "r")
+        encontrado = False
+        for linea in archivo:
+            if linea.strip():  # Solo procesar si no está vacía
+                datos = linea.strip().split(';')
+                if datos[0] == dni_usuario:
+                    encontrado = True
+                    print(f"\nDNI: {dni_usuario}")
+                    print(f"Nombre: {datos[1]}")
+                    print("Shows comprados y cantidad de entradas:")
+                    shows = datos[2].strip('').split(',')
+                    for show in shows:
+                        if show:  # Solo mostrar shows no vacíos
+                            print(f"- {show}")
+                    break  # Salir del bucle una vez encontrado
 
             if not encontrado:
                 print("No se encontraron shows para este DNI.")
@@ -30,8 +30,17 @@ def ver_mis_shows():
 
 def crear_asientos():
     # Cargar datos del archivo JSON
-    with open('Eventos.json', 'r', encoding='utf-8') as archivo:
+    try:
+        archivo = open('Eventos.json', 'r', encoding='utf-8')
         eventos = json.load(archivo)
+    except FileNotFoundError:
+        print("El archivo Eventos.json no existe.")
+        return
+    except json.JSONDecodeError:
+        print("Error al leer el archivo JSON. Verifique el formato.")
+        return
+    finally:
+        archivo.close()
 
     # Mostrar lista de artistas disponibles
     print("\nArtistas disponibles:")
@@ -90,13 +99,12 @@ def crear_asientos():
         print(fila)
     
     return platea_alta, platea_baja
-
 def cargar_eventos():
     """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
     try:
         archivo = open('Eventos.json', 'rt', encoding='utf-8')
         eventos_json = json.load(archivo)
-        archivo.close()
+        
 
         return eventos_json;
 
@@ -106,6 +114,8 @@ def cargar_eventos():
     except json.JSONDecodeError:
         print("Error al leer JSON. Verifica el formato.")
         return []
+    finally:
+        archivo.close()
     
 # Cargamos los eventos al inicio para trabajar con ellos
 eventos = cargar_eventos()
@@ -192,7 +202,7 @@ def cargar_eventos():
     try:
         archivo = open('Eventos.json', 'rt', encoding='utf-8')
         eventos_json = json.load(archivo)
-        archivo.close()
+        
 
         lista_eventos = []
         i = 1
@@ -216,6 +226,8 @@ def cargar_eventos():
     except json.JSONDecodeError:
         print("Error al leer JSON. Verifica el formato.")
         return []
+    finally:
+        archivo.close()
 
 def guardar_eventos(eventos):
     """Guarda toda la lista de eventos en el archivo JSON con la estructura correcta."""
@@ -245,9 +257,10 @@ def guardar_eventos(eventos):
     try:
         archivo = open('Eventos.json', 'wt', encoding='utf-8')
         json.dump(data, archivo, indent=4, ensure_ascii=False)
-        archivo.close()
     except Exception as e:
         print(f"Error al guardar el archivo JSON: {e}")
+    finally:
+        archivo.close()
 
 def nombre_sector(opcion_sector):
     if opcion_sector == 1:
@@ -457,9 +470,9 @@ def agregar_fecha():
         eventos[str(artista)]["Fechas"] = nuevas_fechas
         
         # Guardar cambios en el archivo JSON
-        with open('Eventos.json', 'w', encoding='utf-8') as archivo:
-            json.dump(eventos, archivo, indent=4)
-        
+        archivo = open('Eventos.json', 'w', encoding='utf-8')
+        json.dump(eventos, archivo, indent=4)
+        archivo.close()
         print("Fecha agregada con éxito.")
     except Exception as e:
         print(f"Error al agregar la fecha: {e}")
@@ -712,9 +725,18 @@ def opcion_de_ingreso():
         return dni
 
 def crear_asientos():
-    # Cargar datos del archivo JSON
-    with open('Eventos.json', 'r', encoding='utf-8') as archivo:
+    """Crea asientos para un artista y guarda los cambios."""
+    try:
+        archivo = open('Eventos.json', 'r', encoding='utf-8')
         eventos = json.load(archivo)
+    except FileNotFoundError:
+        print("El archivo Eventos.json no existe.")
+        return
+    except json.JSONDecodeError:
+        print("Error al leer el archivo JSON. Verifique el formato.")
+        return
+    finally:
+        archivo.close()
     
     # Mostrar lista de artistas disponibles
     print("\nArtistas disponibles:")
