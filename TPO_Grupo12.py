@@ -169,24 +169,24 @@ def ingreso_usuario():
         while linea:
             linea = linea.strip()
             if linea:
-                dni, nombre_apellido,eventos = linea.split(';')
+                dni, nombre_apellido, eventos = linea.split(';')
                 if dni == input_dni:
                     print()
                     print()
                     print(f"Bienvenido {nombre_apellido}")
                     return True, input_dni
-            
             else:
                 print("Línea mal formada:", linea)
             linea = archivo.readline()
+        return False, input_dni  # DNI no encontrado
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
-        return
+        return False, ""
     finally:
-        archivo.close()
-
-   
-
+        try:
+            archivo.close()
+        except:
+            pass 
             
 
 def cargar_eventos():
@@ -683,10 +683,12 @@ def opcion_de_ingreso():
         creacion_usuario()
     else:
         validacion = False
-        dni = None
+        dni = ""
         while not validacion:
             validacion, dni = ingreso_usuario()
-            if not validacion:	
+            if validacion:
+                break
+            if not validacion and dni != "":	
                 print("DNI no encontrado. Por favor, ingrese un DNI válido.")
         return dni
 
@@ -786,6 +788,7 @@ def bienvenida():
     print("---------------------------")
 	
     dni = opcion_de_ingreso()
+    
     return dni
     
 dni_usuario = bienvenida()
