@@ -531,22 +531,57 @@ def procesar_opcion_ver_artistas():
 		ver_entradas_disponibles_por_fecha(artista)
 
 def proceder_con_compra(artista):
-	"""Permite al usuario proceder con la compra de entradas."""
-	sector = seleccionar_sector(artista)
-	while not sector:
-		print("Sector sin entradas disponibles.")
-		sector = seleccionar_sector(artista)
-	cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	while cantidad_de_entradas >= 6:
-		print("No puede comprar más de 5 entradas por transacción.")
-		cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	opcion_sector_diccionario = nombre_sector(sector )
-	while cantidad_de_entradas > eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Disponibilidad"] or cantidad_de_entradas <= 0:
-		print("Cantidad no válida. Verifique la disponibilidad o ingrese un número positivo.")
-		cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
-	total = cantidad_de_entradas *  eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"]
-	print(f"Total a pagar: {total}")
-	print("Entradas compradas con éxito. ¡Gracias por su compra!")
+    """Permite al usuario proceder con la compra de entradas."""
+    sector = seleccionar_sector(artista)
+    while not sector:
+        print("Sector sin entradas disponibles.")
+        sector = seleccionar_sector(artista)
+    cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+    while cantidad_de_entradas >= 6:
+        print("No puede comprar más de 5 entradas por transacción.")
+        cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+    opcion_sector_diccionario = nombre_sector(sector)
+    while cantidad_de_entradas > eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Disponibilidad"] or cantidad_de_entradas <= 0:
+        print("Cantidad no válida. Verifique la disponibilidad o ingrese un número positivo.")
+        cantidad_de_entradas = int(input("Ingrese la cantidad de entradas: "))
+
+    # Si el sector es platea, mostrar y seleccionar asientos
+    if "Platea" in opcion_sector_diccionario:
+        platea_alta, platea_baja = crear_asientos()
+        matriz = platea_alta if "Alta" in opcion_sector_diccionario else platea_baja
+        
+        print("\nAsientos disponibles (0 = disponible, 1 = ocupado):")
+        for i, fila in enumerate(matriz):
+            print(f"Fila {i+1}: {fila}")
+        
+        asientos_seleccionados = []
+        for i in range(cantidad_de_entradas):
+            while True:
+                try:
+                    print(f"\nSelección del asiento {i+1}:")
+                    fila = int(input("Ingrese el número de fila (1-10): ")) - 1
+                    columna = int(input("Ingrese el número de columna (1-10): ")) - 1
+                    
+                    if 0 <= fila < 10 and 0 <= columna < 10:
+                        if matriz[fila][columna] == 0:
+                            matriz[fila][columna] = 1
+                            asientos_seleccionados.append((fila+1, columna+1))
+                            print(f"Asiento {i+1} asignado: Fila {fila+1}, Columna {columna+1}")
+                            break
+                        else:
+                            print("Este asiento ya está ocupado. Por favor seleccione otro.")
+                    else:
+                        print("Posición inválida. Por favor seleccione una fila y columna entre 1 y 10.")
+                except ValueError:
+                    print("Por favor ingrese números válidos.")
+        
+        print("\nResumen de asientos seleccionados:")
+        for i, (fila, columna) in enumerate(asientos_seleccionados, 1):
+            print(f"Asiento {i}: Fila {fila}, Columna {columna}")
+
+    total = cantidad_de_entradas * eventos[str(artista)]["Sectores"][opcion_sector_diccionario]["Precio"]
+    print(f"\nTotal a pagar: ${total}")
+    print("Entradas compradas con éxito. ¡Gracias por su compra!")
 
 def mostrar_fechas_disponibles(artista):
 	"""Muestra las fechas disponibles para un artista."""
