@@ -91,11 +91,6 @@ def crear_asientos():
     
     return platea_alta, platea_baja
 
-
-
-import json, random
-
-
 def cargar_eventos():
     """Carga los eventos desde el archivo JSON y los devuelve en la estructura de lista."""
     try:
@@ -172,24 +167,24 @@ def ingreso_usuario():
         while linea:
             linea = linea.strip()
             if linea:
-                dni, nombre_apellido,eventos = linea.split(';')
+                dni, nombre_apellido, eventos = linea.split(';')
                 if dni == input_dni:
                     print()
                     print()
                     print(f"Bienvenido {nombre_apellido}")
                     return True, input_dni
-            
             else:
                 print("Línea mal formada:", linea)
             linea = archivo.readline()
+        return False, input_dni  # DNI no encontrado
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
-        return
+        return False, ""
     finally:
-        archivo.close()
-
-   
-
+        try:
+            archivo.close()
+        except:
+            pass 
             
 
 def cargar_eventos():
@@ -686,23 +681,15 @@ def mostrar_usuarios():
         print('Usuarios Registrados: ')
         print(f"{'DNI':<15}{'Nombre y Apellido':<30}{'Eventos':<20}")
         print(f"{'-'*15}{'-'*30}{'-'*20}")
-
-        def procesar_lineas(archivo):
-            linea = archivo.readline()
-            if not linea:
-                return  # Fin del archivo
-
-            linea = linea.strip()
+        linea = archivo.readline()
+        while linea:
+            linea = linea.strip() 
             if linea:
-                try:
-                    dni, nombre_apellido, eventos = linea.split(';')
-                    print(f"{dni:<15}{nombre_apellido:<30}{eventos:<20}")
-                except ValueError:
-                    print("Línea mal formada:", linea)
-            procesar_lineas(archivo)
-
-        procesar_lineas(archivo)
-
+                dni, nombre_apellido, eventos = linea.split(';')
+                print(f"{dni:<15}{nombre_apellido:<30}{eventos:<20}")
+            else:
+                print("Línea mal formada:", linea)
+            linea = archivo.readline()
     except FileNotFoundError:
         print("El archivo usuarios.txt no existe.")
     finally:
@@ -715,10 +702,12 @@ def opcion_de_ingreso():
         creacion_usuario()
     else:
         validacion = False
-        dni = None
+        dni = ""
         while not validacion:
             validacion, dni = ingreso_usuario()
-            if not validacion:	
+            if validacion:
+                break
+            if not validacion and dni != "":	
                 print("DNI no encontrado. Por favor, ingrese un DNI válido.")
         return dni
 
@@ -818,6 +807,7 @@ def bienvenida():
     print("---------------------------")
 	
     dni = opcion_de_ingreso()
+    
     return dni
     
 dni_usuario = bienvenida()
