@@ -472,7 +472,6 @@ def agregar_fecha():
         # Guardar cambios en el archivo JSON
         archivo = open('Eventos.json', 'w', encoding='utf-8')
         json.dump(eventos, archivo, indent=4)
-        archivo.close()
         print("Fecha agregada con éxito.")
     except Exception as e:
         print(f"Error al agregar la fecha: {e}")
@@ -757,6 +756,7 @@ def crear_asientos():
                 print("Opción inválida. Por favor, seleccione un número válido.")
         except ValueError:
             print("Por favor, ingrese un número válido.")
+        
     
     # Mostrar fechas disponibles para el artista seleccionado
     print(f"\nFechas disponibles para {artista_seleccionado}:")
